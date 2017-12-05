@@ -1,0 +1,15 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "selector-type-no-unknown": null,
+    "no-missing-end-of-source-newline":null,
+    "max-empty-lines":3,
+    "indentation": 4,
+    "selector-combinator-space-after":"never",
+    "selector-combinator-space-before":"never",
+    "length-zero-no-unit":true,
+  },
+  "stylelint": {
+    "ignoreFiles": ["./node_modules/**/*.css", "./dist/**/*.css"]
+  }
+}

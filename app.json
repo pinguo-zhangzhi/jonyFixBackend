@@ -1,0 +1,12 @@
+{
+  "name":"react-redux-tsx",
+  "scripts":{},
+  "env":{
+
+    "NPM_CONFIG_PRODUCTION" : {
+      "value":"false"
+    }
+
+  },
+  "addons":[]
+}

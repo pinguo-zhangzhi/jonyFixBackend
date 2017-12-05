@@ -1,0 +1,29 @@
+{
+    "compileOnSave": false,
+    "buildOnSave": false,
+    "compilerOptions": {
+        "target": "es6",
+        "jsx": "react",
+        "noEmit": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "noImplicitAny": false,
+        "removeComments": false,
+        "sourceMap": false,
+        "inlineSourceMap": true,
+        "noEmitHelpers": false,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "declaration": false
+    },
+    "awesomeTypescriptLoaderOptions": {
+        "useBabel": true,
+        "useCache": false,
+        "emitRequireType": false
+    },
+    "exclude": [
+        "node_modules",
+        "dist",
+        "public"
+    ]
+}
