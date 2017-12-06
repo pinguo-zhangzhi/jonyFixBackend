@@ -33,7 +33,7 @@ require('./Login.less')
 const { SubMenu } = Menu
 const { Header, Content, Sider } = Layout
 
-useStrict(true)
+useStrict(false)
 
 @inject("userStore") @observer
 export default class Login extends React.Component {
@@ -47,6 +47,7 @@ export default class Login extends React.Component {
   constructor(props) {
     super()
     this.store = props.userStore
+    this.store.uuid = ""
   }
 
   handleLogin() {
@@ -54,9 +55,7 @@ export default class Login extends React.Component {
     this.store.login({mobile: this.phoneNumber, code: this.verifyCode}, (res) => {
         if (res.error_code == 0) {
             this.store.userInfo = res.data.info
-            console.log('====================================');
-            console.log(this.store.userInfo);
-            console.log('====================================');
+            this.store.uuid = res.data.uuid
             this.store.isLogin = true
             browserHistory.push('home')
         }

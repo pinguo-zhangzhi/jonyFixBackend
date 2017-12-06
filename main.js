@@ -1,12 +1,13 @@
 
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 const net = require('net')
 
 let win
 
 function createWindow() {
-    
+    // const menu = Menu.buildFromTemplate([])
+    // Menu.setApplicationMenu(menu)  
   win = new BrowserWindow({
       resizable: true,
       width: 800,
@@ -42,36 +43,4 @@ app.on('activate', () => {
       createWindow()
   }
 })
-
-// var so = new net.Socket({
-//     readable: true,
-//     writable: true,
-//     allowHalfOpen: true
-// })
-
-// so.connect(7373, '10.1.17.204', (err) => {
-//     console.log('====================================');
-//     console.log('socket connect is:' + err)
-//     console.log('====================================');
-// })
-
-// console.log('====================================');
-// console.log('dd'+so.connecting);
-// console.log('====================================');
-
-// so.on('data', function() {
-  
-// })
-  
-// so.on('close', function() {
-//     console.log('====================================');
-//     console.log('socket is close');
-//     console.log('====================================');
-// })
-  
-// so.on('error', function(err) {
-//     console.log('====================================');
-//     console.log('socket is error:' + err);
-//     console.log('====================================');  
-// })
 

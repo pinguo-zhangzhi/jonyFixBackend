@@ -1,6 +1,3 @@
-// import 'es5-shim'
-// import 'es6-shim'
-// import 'es6-promise'
 
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
@@ -38,6 +35,7 @@ window.addEventListener('contextmenu', function (e) {
 }, false)
 
 let baseStore = new BaseStore()
+let currentComponent = baseStore.userStore.isLogin? Home: Login
 var component = <Provider userStore={baseStore.userStore} baseStore={baseStore} menuStore={baseStore.menuStore}>
                   <Router history={browserHistory}>
                     <Route path="/" component={baseStore.userStore.isLogin? Home: Login} />

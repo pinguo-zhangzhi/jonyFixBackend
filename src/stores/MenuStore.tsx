@@ -4,7 +4,7 @@ import { observer } from "mobx-react"
 import { observable, autorun, asStructure, useStrict, action } from 'mobx'
 import BaseStore from './BaseStore';
 
-useStrict(true)
+useStrict(false)
 
 export default class MenuStore<BaseStore> {
 
