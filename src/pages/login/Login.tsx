@@ -54,6 +54,16 @@ export default class Login extends BaseView {
         loginLoading: false,
         loginText: "登录"
     }
+    
+    componentDidMount() {
+        document.addEventListener('keyup', (e) => {
+            if (e.keyCode == 13) {
+                if (this.phoneNumber && this.verifyCode) {
+                    this.handleLogin()
+                }
+            }
+        })
+    }
 
     handleLogin() {
         if (!(this.phoneNumber && /^1[3|4|5|7|8][0-9]{9}$/.test(this.phoneNumber + ''))) {
@@ -140,16 +150,6 @@ export default class Login extends BaseView {
 
     handlePhoneChange(event) {
         this.phoneNumber = event.target.value
-    }
-
-    componentDidMount() {
-        document.addEventListener('keyup', (e) => {
-            if (e.keyCode == 13) {
-                if (this.phoneNumber && this.verifyCode) {
-                    this.handleLogin()
-                }
-            }
-        })
     }
 
     public render() {    

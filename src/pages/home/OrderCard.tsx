@@ -15,6 +15,8 @@ import MenuStore from '../../stores/MenuStore'
 import UserStore from '../../stores/UserStore'
 import FileManager from '../../utils/FileManager'
 
+import UploadFileManager from '../../utils/UploadFileManager'
+
 import { remote, shell } from 'electron'
 
 const { SubMenu } = Menu
@@ -41,12 +43,6 @@ export default class OrderCard extends React.Component<PassedProps> {
     super()
     this.order = props.order
     this.userStore = props.userStore
-    if (this.order.orderStatus == OrderStatus.started) {
-        this.fetchOrderPhotoList()
-        let fileManger = FileManager.sharedInstance()
-        fileManger.createOrderDir(this.order)
-        this.watchUploadDir()
-    }
   }
 
   userStore: any
@@ -67,7 +63,7 @@ export default class OrderCard extends React.Component<PassedProps> {
   }
   
   handleCreateDir() {
-    
+      // UploadFileManager.sharedInstance().uploadFile(this.order.orderId)
     let fileManger = FileManager.sharedInstance()
     fileManger.createOrderDir(this.order)
 
@@ -83,6 +79,10 @@ export default class OrderCard extends React.Component<PassedProps> {
 
   }
 
+  componentDidMount() {
+      // UploadFileManager.sharedInstance().uploadFile("201712061412569032", "/Users/macbook/Downloads/ac_bg.jpg")
+  }
+
   watchUploadDir() {
     let fileManger = FileManager.sharedInstance()
     let uploadDirPath = fileManger.getUploadDirPath(this.order)
@@ -91,6 +91,7 @@ export default class OrderCard extends React.Component<PassedProps> {
         console.log('%s changed.', name)
         console.log('====================================');
         console.log(event);
+        // console.log(name.lastIndexOf(".").toLowerCase())
         console.log('====================================');
     })
   }

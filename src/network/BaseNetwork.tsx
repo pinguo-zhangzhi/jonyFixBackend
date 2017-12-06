@@ -10,6 +10,7 @@ export default class BaseNetwork {
     login: 10000,
     orderList: 10003,
     startFix: 10004,
+    getUploadAuth: 10007,
     orderPhotoList: 10006
   }
 
