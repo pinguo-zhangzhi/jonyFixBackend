@@ -7,7 +7,7 @@ import * as ReactDOM from 'react-dom'
 import React from 'react'
 import { createStore, combineReducers } from 'redux'
 import { Provider } from 'react-redux'
-import { Router, Route, hashHistory, browserHistory } from 'react-router'
+import { Router, Route, hashHistory } from 'react-router'
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import { createHistory } from 'history'
 import { observer, inject } from "mobx-react"
@@ -21,6 +21,7 @@ export default class ErrorHandler {
   }
 
   private static loginExpired = -10004
+  private static phoneNumberError = 1
 
   private static sErrorHandler: ErrorHandler
 
@@ -37,9 +38,14 @@ export default class ErrorHandler {
       switch (code) {
         case ErrorHandler.loginExpired:
           errorModal = <ErrorModal text="登录已过期，请重新登录." handleOkCallback={() => {
-              browserHistory.replace('login')
+              hashHistory.replace('login')
               window.localStorage.setItem("isLogin", 'false')
               window.localStorage.setItem("uuid", '')  
+          }} />
+          break;
+        case ErrorHandler.phoneNumberError:
+          errorModal = <ErrorModal text="请输入正确的手机号" handleOkCallback={() => {
+            
           }} />
           break;
       
