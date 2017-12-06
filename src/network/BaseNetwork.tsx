@@ -9,7 +9,8 @@ export default class BaseNetwork {
     verifyCode: 10002,
     login: 10000,
     orderList: 10003,
-    startFix: 10004
+    startFix: 10004,
+    getUploadAuth: 10007
   }
 
   rand_str = 'ywnBQ1YvqS'
