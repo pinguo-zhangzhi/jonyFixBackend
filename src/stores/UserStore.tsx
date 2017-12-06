@@ -57,6 +57,14 @@ export default class UserStore<BaseStore> {
     window.localStorage.setItem("uuid", uuid) 
   }
 
+  get uid() {
+    return window.localStorage.getItem("uid")
+  }
+  
+  set uid(uid) {
+    window.localStorage.setItem("uid", uid) 
+  }
+
   login(param, callback) {
       network.request('login', param, callback)
   }

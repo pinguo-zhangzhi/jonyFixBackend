@@ -97,8 +97,7 @@ export default class Home extends BaseView {
     hashHistory.replace('login')
   }
 
-  public render() {    
-   
+  public render() {
     return <Layout className="main-container">
       <Header className="header">
         <div className="logo" />
