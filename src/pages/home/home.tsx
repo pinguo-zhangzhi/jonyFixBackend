@@ -7,7 +7,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import { createHistory } from 'history'
 import { observer, inject } from "mobx-react"
 import { observable, autorun, useStrict, action } from 'mobx'
-import { Layout, Menu, Breadcrumb, Icon, Spin } from 'antd'
+import { Layout, Menu, Breadcrumb, Icon, Spin, Modal } from 'antd'
 import { ADDRCONFIG } from 'dns'
 import watch from 'node-watch'
 
@@ -18,6 +18,8 @@ import OrderCard from './OrderCard'
 import ErrorHandler from '../../utils/ErrorHandler'
 import BaseView from '../../components/BaseView'
 import FileManager from '../../utils/FileManager'
+
+import UploadFileManager from '../../utils/UploadFileManager'
 
 const { SubMenu } = Menu
 const { Header, Content, Sider } = Layout
@@ -82,12 +84,45 @@ export default class Home extends BaseView {
     let fileManager = FileManager.sharedInstance()
     let uploadDirPath = fileManager.getUploadDirPath(order)
     let orderDirPath = fileManager.getOrderDirPath(order)
-    watch(orderDirPath, { recursive: true }, function(event, name) {
-        console.log('%s changed.', name)
-        console.log('====================================');
-        console.log(event);
-        // console.log(name.lastIndexOf(".").toLowerCase())
-        console.log('====================================');
+    watch(orderDirPath, { recursive: true }, (event, name) => {
+		if (name.indexOf("上传目录") > -1) {
+			let picPathList = name.split("/")
+			let picName = picPathList[picPathList.length - 1]
+			let picEtag = picName.substr(0, picName.indexOf("."))
+			let picSuffix = picName.substr(picName.indexOf("."), picName.length - 1)
+			let picUploadDir = picPathList[picPathList.length - 2]
+			let picOrderId = picPathList[picPathList.length - 3]
+			console.log(picEtag, picPathList,picSuffix)
+			if (event == "update") {
+				console.log(picSuffix.toLowerCase())
+				if (name.indexOf("DS_Store") > -1) {
+					return
+				}
+				if (picSuffix.toLowerCase() != '.jpg' && picSuffix.toLowerCase() != '.jpeg') {
+					Modal.error({
+						title: '上传目录的图片格式只能是jpg/jpeg',
+						content: picName + '格式不正确',
+					});
+					return
+				}
+				UploadFileManager.sharedInstance().uploadFile({
+					uid: this.userStore.uid,
+					orderId:picOrderId,
+					filePath: name
+				})
+				// console.log('%s update.', name)
+				// console.log('====================================');
+				// console.log(event);
+				// // console.log(name.lastIndexOf(".").toLowerCase())
+				// console.log('====================================');
+			} else if (event == "remove") {
+				// console.log('%s remove.', name)
+				// console.log('====================================');
+				// console.log(event);
+				// // console.log(name.lastIndexOf(".").toLowerCase())
+				// console.log('====================================');
+			}
+		}
     })
   }
 

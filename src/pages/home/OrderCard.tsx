@@ -80,7 +80,7 @@ export default class OrderCard extends React.Component<PassedProps> {
   }
 
   componentDidMount() {
-      // UploadFileManager.sharedInstance().uploadFile("201712061412569032", "/Users/macbook/Downloads/ac_bg.jpg")
+      // UploadFileManager.sharedInstance().uploadFile(this.userStore.uid, "201712061412569032", "/Users/macbook/Downloads/ac_bg.jpg")
   }
 
   watchUploadDir() {
