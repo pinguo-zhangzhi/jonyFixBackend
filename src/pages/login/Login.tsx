@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import React from 'react'
 import { createStore, combineReducers } from 'redux'
 import { Provider } from 'react-redux'
-import { Router, Route, hashHistory, browserHistory } from 'react-router'
+import { Router, Route, hashHistory } from 'react-router'
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import { createHistory } from 'history'
 import { observer, inject } from "mobx-react"
@@ -55,7 +55,7 @@ export default class Login extends React.Component {
             this.store.userInfo = res.data.info
             this.store.uuid = res.data.uuid
             this.store.isLogin = true
-            browserHistory.push('home')
+            hashHistory.push('home')
         }
     })
   }

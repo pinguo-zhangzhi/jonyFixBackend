@@ -2,7 +2,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { createStore, combineReducers } from 'redux'
-import { Router, Route, hashHistory, browserHistory } from 'react-router'
+import { Router, Route, hashHistory } from 'react-router'
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import { createHistory } from 'history'
 import { observer, Provider } from "mobx-react"
@@ -37,7 +37,7 @@ window.addEventListener('contextmenu', function (e) {
 let baseStore = new BaseStore()
 let currentComponent = baseStore.userStore.isLogin? Home: Login
 var component = <Provider userStore={baseStore.userStore} baseStore={baseStore} menuStore={baseStore.menuStore}>
-                  <Router history={browserHistory}>
+                  <Router history={hashHistory}>
                     <Route path="/" component={baseStore.userStore.isLogin? Home: Login} />
                     <Route path="home" component={Home} />
                     <Route path="login" component={Login} />
