@@ -15,15 +15,7 @@ export default class DownloadFileManager {
 
   @observable private currentCount = 0
 
-  @observable private queue = []
-
-  // @autorun doRequest = () => {
-  //    if (this.currentCount < this.maxCount) {
-  //         let request = this.queue.pop()
-  //         request()
-  //         this.currentCount ++
-  //     }  
-  // }
+  @observable private queue = [] 
 
   private static sManager
 
@@ -38,18 +30,26 @@ export default class DownloadFileManager {
   downloadFile(url, path) {
     
     if (this.currentCount < this.maxCount) {
-        request.head(url, (err, res, body) => {
-            if(err){
-                console.log(err);
-            }else {
-                this.currentCount -- 
-                let obj = this.queue.pop()
-                if (obj != null) {
-                    this.downloadFile(obj.url, obj.path)
+        (() => {
+            let requestUrl = url,
+                imagePath = path
+            request.head(requestUrl, (err, res, body) => {
+                if(err){
+                    console.log(err);
+                    this.downloadFile(requestUrl, imagePath)
+
+                }else {
+                    this.currentCount -- 
+                    let obj = this.queue.pop()
+                    if (obj != null) {
+                        this.downloadFile(obj.url, obj.path)
+                    }
                 }
-            }
-        })
-        request(url).pipe(fs.createWriteStream(path))
+            })
+
+            request(requestUrl).pipe(fs.createWriteStream(imagePath))
+
+        })()
 
     }else {
         this.queue.push({url: url, path: path})
