@@ -39,6 +39,7 @@
         "url": "https://github.com/"
     },
     "dependencies": {
+        "qiniu": "^7.1.1",
         "@types/history": "^3.2.0",
         "@types/react": "^15.0.38",
         "@types/react-router": "^3.0.5",

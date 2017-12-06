@@ -28,6 +28,7 @@ export default class FileManager {
 
   createOrderDir(order) {
       let orderDir = this.jonyFixDirPath + '/' + order.orderId
+      console.log(orderDir)
       if (!fs.existsSync(orderDir)) {
           fs.mkdirSync(orderDir) 
       }
