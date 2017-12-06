@@ -1,4 +1,3 @@
-
 import * as ReactDOM from 'react-dom';
 import React from 'react'
 import { createStore, combineReducers } from 'redux'
@@ -66,7 +65,7 @@ export default class Home extends BaseView {
   @action logoutClick = (e) => {
     this.userStore.isLogin = false
     this.userStore.uuid = ""
-    browserHistory.replace('login')
+    hashHistory.replace('login')
   }
 
   public render() {    

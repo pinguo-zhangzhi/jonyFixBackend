@@ -1,0 +1,114 @@
+body,
+html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  display: flex;
+}
+.main-container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+a {
+  text-decoration: none;
+}
+img {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+button {
+  border: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  cursor: pointer;
+}
+input {
+  border: none;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  text-indent: 10px;
+}
+input::-webkit-input-placeholder {
+  color: #999999;
+  opacity: 1;
+}
+.clear {
+  clear: both;
+}
+.login-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url(../../assets/images/login_bg.jpg);
+  background-size: cover;
+}
+.login-container .login-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 500px;
+  margin-top: -250px;
+  margin-left: -250px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 5px;
+}
+.login-container .login-content .logo {
+  display: block;
+  width: 80px;
+  height: 80px;
+  margin: 15% auto;
+  background-image: url(../../assets/images/logo.png);
+  background-size: cover;
+}
+.login-container .login-content .input-wrapper {
+  display: flex;
+  flex-direction: row;
+  margin-top: 30px;
+  padding: 0 20%;
+  justify-content: center;
+  align-items: center;
+}
+.login-container .login-content .input-wrapper .user-input,
+.login-container .login-content .input-wrapper .verifycode-input {
+  width: 100%;
+  height: 45px;
+  font-size: 16px;
+  color: #333333;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.8);
+}
+.login-container .login-content .input-wrapper .verify-button {
+  width: 160px;
+  height: 45px;
+  border-radius: 3px;
+  margin-left: 30px;
+  color: #40a9ff;
+  font-size: 14px;
+  border-color: #40a9ff;
+  background: rgba(0, 0, 0, 0);
+}
+.login-container .login-content .input-wrapper .submit-area {
+  display: flex;
+  justify-content: center;
+  margin: auto;
+  width: 100%;
+}
+.login-container .login-content .input-wrapper .submit-area .login-button {
+  height: 50px;
+  background: #40a9ff;
+  font-size: 16px;
+  color: white;
+  border-radius: 3px;
+  flex: 7;
+  border: 0;
+}

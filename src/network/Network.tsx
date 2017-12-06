@@ -47,7 +47,7 @@ export default class Network extends BaseNetwork {
       data: param || {}
     }
 
-    let uuid = window.localStorage.getItem('uuid')
+    let uuid = window.localStorage.getItem('uuid') || ''
 
     if (uuid.length > 0) {
       data.data['uuid'] = uuid
