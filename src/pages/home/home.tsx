@@ -8,7 +8,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import { createHistory } from 'history'
 import { observer, inject } from "mobx-react"
 import { observable, autorun, useStrict, action } from 'mobx'
-import { Layout, Menu, Breadcrumb, Icon } from 'antd'
+import { Layout, Menu, Breadcrumb, Icon, Spin } from 'antd'
 import { ADDRCONFIG } from 'dns'
 
 import BaseStore from '../../stores/BaseStore'
@@ -46,7 +46,9 @@ export default class Home extends BaseView {
   }
 
   @action fetchOrderList() {
+    this.isLoading = true
     this.userStore.getOrderList(null, (res) => {
+        this.isLoading = false
         console.log('====================================');
         console.log(res);
         console.log('====================================');
@@ -87,8 +89,9 @@ export default class Home extends BaseView {
           { this.state.orderList.map((order, index) => {
               return <OrderCard key={index} order={order} />
           }) }
-          {this.errorModal != null? this.errorModal: null}
       </div>
+      {this.isLoading == true? <Spin size="large" /> : null}
+      {this.errorModal != null? this.errorModal: null}
     </Layout>
   }
 }
