@@ -32,44 +32,37 @@ export default class OrderCard extends React.Component<PassedProps> {
     this.order = props.order
   }
 
-  order: any
+  @observable order: any
   
   handleCreateDir() {
     let fileManger = FileManager.sharedInstance()
-    fileManger.createDir(this.order.id)
+    fileManger.createDir(this.order)
+    this.order.orderStatus = 1
+    this.forceUpdate()
   }
 
   public render() {    
-    return <div className="orderCard">
+    return <div className="orderCard" style={{backgroundImage:'url('+ this.order.banner +')'}}>
         <div className="order-title">{this.order.title}</div>
         <div className="order-id">{this.order.id}</div>
         <div className="clear"></div>
         <div className="order-subtitle">{this.order.subtitle}</div>
         <div className="operation">
-          <button className="start-button" onClick={this.handleCreateDir.bind(this)}>开始修图</button>
-          <button className="end-button">结束修图</button>
+          {this.order.orderStatus == 0? <button className="start-button" onClick={this.handleCreateDir.bind(this)}>开始修图</button>: null}
+          {this.order.orderStatus == 1? <button className="end-button">结束修图</button>: null}
         </div>       
     </div>
   }
 }
 
-// allPrice:1
-// createtime:"1510391870"
-// detail:"佳尼跟拍为摄影师提供流畅的图片处理和图片直播服务。在这里，你能够高效的处理相机中的图片，并将您的拍摄的相册分享给小伙伴们。"
-// id:"201711111717507931"
-// mobile:""
-// nickname:"佳尼跟拍"
+// banner:"http://c360-o2o.c360dn.com/59e5e6589258b"
+// mobile:"13060046366"
+// nickname:"调整水印"
 // note:""
-// place:"当前地址"
-// pv:30
-// relay:1
-// shortUrl:"http://t.cn/RY8pdrz"
-// singlePrice:1
-// startTime:"1510391870"
-// status:1
-// subtitle:"我的第一个佳尼相册"
-// tagId:0
-// title:"佳尼首次直播体验"
-// uid:"5a06c03ebe6f4"
-// updatetime:"1510392398"
+// orderId:"201711141517307179"
+// orderStatus:0
+// place:"成都美视国际学校"
+// startTime:"1510643520"
+// tagList:Array(0)
+// title:"第九十九"
 

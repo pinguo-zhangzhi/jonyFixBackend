@@ -26,9 +26,10 @@ export default class FileManager {
     }
   }
 
-  createDir(path) {
-      if (!fs.existsSync(this.jonyFixDirPath + '/' + path)) {
-          fs.mkdirSync(this.jonyFixDirPath + '/' + path) 
+  createDir(order) {
+      let orderDir = this.jonyFixDirPath + '/' + order.orderId
+      if (!fs.existsSync(orderDir)) {
+          fs.mkdirSync(orderDir) 
       }
   }
 

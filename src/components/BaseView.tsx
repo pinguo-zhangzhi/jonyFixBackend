@@ -18,6 +18,8 @@ export default class BaseView extends React.Component {
       super()
     }
 
+    @observable isLoading: boolean = false
+
     @observable errorModal: ErrorModal
   
     public render() {    
