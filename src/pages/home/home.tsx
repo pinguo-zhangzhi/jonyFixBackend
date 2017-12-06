@@ -18,6 +18,8 @@ import OrderCard from './OrderCard'
 import ErrorHandler from '../../utils/ErrorHandler'
 import BaseView from '../../components/BaseView'
 import FileManager from '../../utils/FileManager'
+import JLocalStorage from '../../utils/JlocalStorage'
+import path from 'path'
 
 import UploadFileManager from '../../utils/UploadFileManager'
 
@@ -48,7 +50,11 @@ export default class Home extends BaseView {
     this.baseStore = props.baseStore
     this.userStore = props.userStore
     this.fetchOrderList()
+    // let uid = window.localStorage.getItem('uid')
+    // this.storage = JLocalStorage.sharedInstance(uid)
   }
+
+  storage: JLocalStorage
 
   state = {
     orderList: []
@@ -66,63 +72,46 @@ export default class Home extends BaseView {
             this.setState({
               orderList: res.data.list
             })
-			for (let i = 0; i < res.data.list.length; i++) {
-				const orderItem = res.data.list[i];
-				if (orderItem.orderStatus == OrderStatus.started) {
-					let fileManager = FileManager.sharedInstance()
-					fileManager.createOrderDir(orderItem)
-					this.watchUploadDir(orderItem)
-				}
-			}
+
+            // for (let i = 0; i < res.data.list.length; i++) {
+            //   const orderItem = res.data.list[i];
+            //   if (orderItem.orderStatus == OrderStatus.started) {
+            //     let fileManager = FileManager.sharedInstance()
+            //     fileManager.createOrderDir(orderItem)
+            //   }
+            // }
+            
+            // this.watchDir()
+
         }else {
            this.errorModal = ErrorHandler.sharedInstance().handleErrorCode(res.error_code)
         }
     })
   }
   
-  watchUploadDir(order) {
-    let fileManager = FileManager.sharedInstance()
-    let uploadDirPath = fileManager.getUploadDirPath(order)
-    let orderDirPath = fileManager.getOrderDirPath(order)
-    watch(orderDirPath, { recursive: true }, (event, name) => {
-		if (name.indexOf("上传目录") > -1) {
-			let picPathList = name.split("/")
-			let picName = picPathList[picPathList.length - 1]
-			let picEtag = picName.substr(0, picName.indexOf("."))
-			let picSuffix = picName.substr(picName.indexOf("."), picName.length - 1)
-			let picUploadDir = picPathList[picPathList.length - 2]
-			let picOrderId = picPathList[picPathList.length - 3]
-			console.log(picEtag, picPathList,picSuffix)
-			if (event == "update") {
-				console.log(picSuffix.toLowerCase())
-				if (name.indexOf("DS_Store") > -1) {
-					return
-				}
-				if (picSuffix.toLowerCase() != '.jpg' && picSuffix.toLowerCase() != '.jpeg') {
-					Modal.error({
-						title: '上传目录的图片格式只能是jpg/jpeg',
-						content: picName + '格式不正确',
-					});
-					return
-				}
-				UploadFileManager.sharedInstance().uploadFile({
-					uid: this.userStore.uid,
-					orderId:picOrderId,
-					filePath: name
-				})
-				// console.log('%s update.', name)
-				// console.log('====================================');
-				// console.log(event);
-				// // console.log(name.lastIndexOf(".").toLowerCase())
-				// console.log('====================================');
-			} else if (event == "remove") {
-				// console.log('%s remove.', name)
-				// console.log('====================================');
-				// console.log(event);
-				// // console.log(name.lastIndexOf(".").toLowerCase())
-				// console.log('====================================');
-			}
-		}
+  watchDir() {
+    let jonyFixDirPath = FileManager.sharedInstance().jonyFixDirPath
+    watch(jonyFixDirPath, { recursive: true }, (event, name) => {
+        // console.log('%s changed.', name)
+        // console.log('====================================');
+        // console.log(event);
+        // // console.log(name.lastIndexOf(".").toLowerCase())
+        // console.log('====================================');
+        if (event == 'update' && name.indexOf('.jpg')) {
+            if (name.indexOf('上传目录') >= 0) {
+
+            }else {
+                let etag = path.basename(name)
+                let paths = name.split('/')
+                let orderId = paths[paths.length - 3]
+                let tagName = paths[paths.length - 2]
+                var data = this.storage.getData()
+                if (!data[orderId]) {
+                    data[orderId] = {}
+                }
+                data[orderId][tagName]
+            }
+        }
     })
   }
 

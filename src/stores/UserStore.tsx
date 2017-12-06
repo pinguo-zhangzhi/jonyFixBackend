@@ -49,6 +49,8 @@ export default class UserStore<BaseStore> {
     window.localStorage.setItem("isLogin", localizeProperty) 
   }
 
+  isWatching: boolean = false
+
   get uuid() {
     return window.localStorage.getItem("uuid")
   }
