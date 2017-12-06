@@ -25,6 +25,8 @@ const { Header, Content, Sider } = Layout
 import watch from 'node-watch'
 import Network from '../../network/Network'
 import DownloadFileManager from '../../utils/DownloadFileManager'
+import path from 'path'
+import JLocalStorage from '../../utils/JlocalStorage'
 
 enum OrderStatus {
   unStart = 0,
@@ -43,7 +45,16 @@ export default class OrderCard extends React.Component<PassedProps> {
     super()
     this.order = props.order
     this.userStore = props.userStore
+    let uid = window.localStorage.getItem('uid')
+    this.storage = JLocalStorage.sharedInstance(uid)
+    if (this.order.orderStatus == OrderStatus.started) {
+      let fileManager = FileManager.sharedInstance()
+      this.fetchOrderPhotoList()
+      this.watchDir()
+    }
   }
+
+  storage: JLocalStorage
 
   userStore: any
 
@@ -52,12 +63,27 @@ export default class OrderCard extends React.Component<PassedProps> {
   fetchOrderPhotoList() {
     Network.sharedInstance().request('orderPhotoList', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
       if (res.error_code == 0) {
+            var data = this.storage.getData()
+            let orderId = this.order.orderId 
+            if (!data[orderId]) {
+                data[orderId] = {}
+            }
+
             res.data.map((imageObj, index) => {
-                let manager = DownloadFileManager.sharedInstance()
-                let fileManger = FileManager.sharedInstance()
-                let savePath = fileManger.getTagDirPath(this.order, imageObj.name) + '/' + imageObj.etag + '.jpg'
-                manager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
+                if (!data[orderId][imageObj.etag] || !data[orderId][imageObj.etag]['downloaded']) {
+                    data[orderId][imageObj.etag] = imageObj
+                    let manager = DownloadFileManager.sharedInstance()
+                    let fileManger = FileManager.sharedInstance()
+                    let savePath = fileManger.getTagDirPath(this.order, imageObj.name) + '/' + imageObj.etag + '.jpg'
+                    manager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
+                }
             })
+
+            // console.log('====================================');
+            // console.log(data);
+            // console.log('====================================');
+
+            this.storage.setData(data)
       }
     })
   }
@@ -71,7 +97,7 @@ export default class OrderCard extends React.Component<PassedProps> {
         if (res.error_code == 0) {
             this.order.orderStatus = OrderStatus.started
             this.forceUpdate()
-            this.watchUploadDir()
+            this.watchDir()
         }
     })
 
@@ -83,17 +109,32 @@ export default class OrderCard extends React.Component<PassedProps> {
       // UploadFileManager.sharedInstance().uploadFile("201712061412569032", "/Users/macbook/Downloads/ac_bg.jpg")
   }
 
-  watchUploadDir() {
-    let fileManger = FileManager.sharedInstance()
-    let uploadDirPath = fileManger.getUploadDirPath(this.order)
-    let orderDirPath = fileManger.getOrderDirPath(this.order)
-    watch(orderDirPath, { recursive: true }, function(event, name) {
-        console.log('%s changed.', name)
-        console.log('====================================');
-        console.log(event);
-        // console.log(name.lastIndexOf(".").toLowerCase())
-        console.log('====================================');
-    })
+  watchDir() {
+    if (!this.userStore.isWatching) {
+      this.userStore.isWatching = true
+        let jonyFixDirPath = FileManager.sharedInstance().jonyFixDirPath
+        watch(jonyFixDirPath, { recursive: true }, (event, name) => {
+            if (event == 'update' && name.indexOf('.jpg')) {
+                if (name.indexOf('上传目录') >= 0) {
+
+                }else {
+
+                    let etag = path.basename(name)
+                    etag = etag.split('.')[0]
+                    let paths = name.split('/')
+                    let orderId = paths[paths.length - 3]
+                    let tagName = paths[paths.length - 2]
+                    var data = this.storage.getData()
+                    if (!data[orderId]) {
+                        data[orderId] = {}
+                    }
+                    data[orderId][etag]['downloaded'] = true
+                    this.storage.setData(data)
+                    
+                }
+            }
+        })
+    }
   }
 
   handleEndFix() {

@@ -18,6 +18,8 @@ import OrderCard from './OrderCard'
 import ErrorHandler from '../../utils/ErrorHandler'
 import BaseView from '../../components/BaseView'
 import FileManager from '../../utils/FileManager'
+import JLocalStorage from '../../utils/JlocalStorage'
+import path from 'path'
 
 const { SubMenu } = Menu
 const { Header, Content, Sider } = Layout
@@ -46,7 +48,11 @@ export default class Home extends BaseView {
     this.baseStore = props.baseStore
     this.userStore = props.userStore
     this.fetchOrderList()
+    // let uid = window.localStorage.getItem('uid')
+    // this.storage = JLocalStorage.sharedInstance(uid)
   }
+
+  storage: JLocalStorage
 
   state = {
     orderList: []
@@ -64,30 +70,46 @@ export default class Home extends BaseView {
             this.setState({
               orderList: res.data.list
             })
-			for (let i = 0; i < res.data.list.length; i++) {
-				const orderItem = res.data.list[i];
-				if (orderItem.orderStatus == OrderStatus.started) {
-					let fileManager = FileManager.sharedInstance()
-					fileManager.createOrderDir(orderItem)
-					this.watchUploadDir(orderItem)
-				}
-			}
+
+            // for (let i = 0; i < res.data.list.length; i++) {
+            //   const orderItem = res.data.list[i];
+            //   if (orderItem.orderStatus == OrderStatus.started) {
+            //     let fileManager = FileManager.sharedInstance()
+            //     fileManager.createOrderDir(orderItem)
+            //   }
+            // }
+            
+            // this.watchDir()
+
         }else {
            this.errorModal = ErrorHandler.sharedInstance().handleErrorCode(res.error_code)
         }
     })
   }
   
-  watchUploadDir(order) {
-    let fileManager = FileManager.sharedInstance()
-    let uploadDirPath = fileManager.getUploadDirPath(order)
-    let orderDirPath = fileManager.getOrderDirPath(order)
-    watch(orderDirPath, { recursive: true }, function(event, name) {
-        console.log('%s changed.', name)
-        console.log('====================================');
-        console.log(event);
-        // console.log(name.lastIndexOf(".").toLowerCase())
-        console.log('====================================');
+  watchDir() {
+    let jonyFixDirPath = FileManager.sharedInstance().jonyFixDirPath
+    watch(jonyFixDirPath, { recursive: true }, (event, name) => {
+        // console.log('%s changed.', name)
+        // console.log('====================================');
+        // console.log(event);
+        // // console.log(name.lastIndexOf(".").toLowerCase())
+        // console.log('====================================');
+        if (event == 'update' && name.indexOf('.jpg')) {
+            if (name.indexOf('上传目录') >= 0) {
+
+            }else {
+                let etag = path.basename(name)
+                let paths = name.split('/')
+                let orderId = paths[paths.length - 3]
+                let tagName = paths[paths.length - 2]
+                var data = this.storage.getData()
+                if (!data[orderId]) {
+                    data[orderId] = {}
+                }
+                data[orderId][tagName]
+            }
+        }
     })
   }
 

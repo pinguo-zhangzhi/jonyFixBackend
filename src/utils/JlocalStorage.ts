@@ -14,7 +14,7 @@ export default class JLocalStorage {
   private static sJLocalStorage: JLocalStorage
 
   static sharedInstance(userId): JLocalStorage {
-    if (JLocalStorage.sJLocalStorage) {
+    if (JLocalStorage.sJLocalStorage == null) {
       JLocalStorage.sJLocalStorage = new JLocalStorage(userId)
     }
     return JLocalStorage.sJLocalStorage
@@ -24,12 +24,12 @@ export default class JLocalStorage {
 
   path: string
   
-  getItem(key) {
-    return this.data[key]
+  getData() {
+    return this.data
   }
 
-  setItem(key, val) {
-    this.data[key] = val
+  setData(data) {
+    this.data = data
     fs.writeFileSync(this.path, JSON.stringify(this.data))
   }
 
