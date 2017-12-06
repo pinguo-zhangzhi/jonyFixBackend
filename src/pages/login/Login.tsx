@@ -14,11 +14,9 @@ import { ADDRCONFIG } from 'dns'
 import BaseStore from '../../stores/BaseStore'
 import MenuStore from '../../stores/MenuStore'
 
-import { remote, shell } from 'electron'
+import { remote, shell, ipcRenderer } from 'electron'
 import fs from 'fs'
 import os from 'os'
-
-const {ipcRenderer} = require('electron')
 
 ipcRenderer.on('asynchronous-reply', (event, arg) => {
   console.log(arg) // prints "pong"
