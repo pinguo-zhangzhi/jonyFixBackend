@@ -7,16 +7,25 @@ import BaseStore from './BaseStore'
 import Network from '../network/Network'
 let network = Network.sharedInstance()
 
-useStrict(true)
+import JLocalStorage from '../utils/JlocalStorage'
 
 export default class UserStore<BaseStore> {
 
   rootStore: BaseStore
 
-  @observable userInfo: any
+  @observable _userInfo: any 
+
+  @observable orderList = []
 
   constructor(f:BaseStore) {
     this.rootStore = f
+  }
+
+  storage: any
+
+  set userInfo(info) {
+    this._userInfo = info
+    this.storage = JLocalStorage.sharedInstance(info.avatar)
   }
 
   get isLogin() {
@@ -40,12 +49,25 @@ export default class UserStore<BaseStore> {
     window.localStorage.setItem("isLogin", localizeProperty) 
   }
 
+  get uuid() {
+    return window.localStorage.getItem("uuid")
+  }
+  
+  set uuid(uuid) {
+    window.localStorage.setItem("uuid", uuid) 
+  }
+
   login(param, callback) {
       network.request('login', param, callback)
   }
 
+  /* 接口 */
   getVerifyCode(param, callback) {
     network.request('verifyCode', param, callback)
+  }
+
+  getOrderList(param, callback) {
+    network.request('orderList', param, callback)
   }
 
 }
