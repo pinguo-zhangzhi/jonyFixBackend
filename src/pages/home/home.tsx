@@ -48,11 +48,11 @@ export default class Home extends BaseView {
     this.isLoading = true
     this.userStore.getOrderList(null, (res) => {
         this.isLoading = false
-        console.log('====================================');
-        console.log(res);
-        console.log('====================================');
         if (res.error_code == 0) {
             this.userStore.orderList = res.data.list
+            console.log('====================================');
+            console.log(res.data.list);
+            console.log('====================================');
             this.setState({
               orderList: res.data.list
             })

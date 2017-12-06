@@ -74,4 +74,16 @@ export default class FileManager {
       }
   }
 
+  getTagDirPath(order, tagName) {
+    if (tagName == null) {
+        tagName = "全部"
+    }
+    let tagDir = this.jonyFixDirPath + '/' + order.orderId + '/' + tagName
+    if (!fs.existsSync(tagDir)) {
+        fs.mkdirSync(tagDir) 
+    }
+
+    return tagDir
+}
+
 }

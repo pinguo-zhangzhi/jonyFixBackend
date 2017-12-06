@@ -22,6 +22,7 @@ const { Header, Content, Sider } = Layout
 
 import watch from 'node-watch'
 import Network from '../../network/Network'
+import DownloadFileManager from '../../utils/DownloadFileManager'
 
 enum OrderStatus {
   unStart = 0,
@@ -41,6 +42,9 @@ export default class OrderCard extends React.Component<PassedProps> {
     this.order = props.order
     this.userStore = props.userStore
     if (this.order.orderStatus == OrderStatus.started) {
+        this.fetchOrderPhotoList()
+        let fileManger = FileManager.sharedInstance()
+        fileManger.createOrderDir(this.order)
         this.watchUploadDir()
     }
   }
@@ -48,6 +52,19 @@ export default class OrderCard extends React.Component<PassedProps> {
   userStore: any
 
   @observable order: any
+
+  fetchOrderPhotoList() {
+    Network.sharedInstance().request('orderPhotoList', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
+      if (res.error_code == 0) {
+            res.data.map((imageObj, index) => {
+                let manager = DownloadFileManager.sharedInstance()
+                let fileManger = FileManager.sharedInstance()
+                let savePath = fileManger.getTagDirPath(this.order, imageObj.name) + '/' + imageObj.etag + '.jpg'
+                manager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
+            })
+      }
+    })
+  }
   
   handleCreateDir() {
     
@@ -56,14 +73,13 @@ export default class OrderCard extends React.Component<PassedProps> {
 
     Network.sharedInstance().request('startFix', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
         if (res.error_code == 0) {
-            console.log('====================================');
-            console.log(res);
-            console.log('====================================');
             this.order.orderStatus = OrderStatus.started
             this.forceUpdate()
             this.watchUploadDir()
         }
     })
+
+    this.fetchOrderPhotoList()
 
   }
 
