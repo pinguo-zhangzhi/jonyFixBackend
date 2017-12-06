@@ -130,7 +130,6 @@ export default class Home extends BaseView {
           style={{ lineHeight: '64px' }}
           onClick = {this.logoutClick.bind(this)}
         >
-            <Menu.Item key="22" className="fix-avatar" style={{float: 'left'}} ></Menu.Item>
             <Menu.Item key="11" className="logout" style={{float: 'right'}} >退出</Menu.Item>
         </Menu>
       </Header>

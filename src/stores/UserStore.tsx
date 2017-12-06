@@ -25,7 +25,7 @@ export default class UserStore<BaseStore> {
 
   set userInfo(info) {
     this._userInfo = info
-    this.storage = JLocalStorage.sharedInstance(info.avatar)
+    this.storage = JLocalStorage.sharedInstance(window.localStorage.getItem('uid'))
   }
 
   get userinfo() {
