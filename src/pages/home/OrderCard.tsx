@@ -74,7 +74,7 @@ export default class OrderCard extends React.Component<PassedProps> {
                     data[orderId][imageObj.etag] = imageObj
                     let manager = DownloadFileManager.sharedInstance()
                     let fileManger = FileManager.sharedInstance()
-                    let savePath = fileManger.getTagDirPath(this.order, imageObj.name) + '/' + imageObj.etag + '.jpg'
+                    let savePath = fileManger.getTagDirPath(this.order.orderId, imageObj.name) + '/' + imageObj.etag + '.jpg'
                     manager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
                 }
             })
@@ -114,8 +114,13 @@ export default class OrderCard extends React.Component<PassedProps> {
       this.userStore.isWatching = true
         let jonyFixDirPath = FileManager.sharedInstance().jonyFixDirPath
         watch(jonyFixDirPath, { recursive: true }, (event, name) => {
-            if (event == 'update' && name.indexOf('.jpg')) {
+            if (event == 'update' && name.indexOf('.jpg') > -1) {
                 if (name.indexOf('上传目录') >= 0) {
+
+                  var data = this.storage.getData()
+                  console.log('====================================');
+                  console.log(data);
+                  console.log('====================================');
 
                 }else {
 
@@ -128,8 +133,13 @@ export default class OrderCard extends React.Component<PassedProps> {
                     if (!data[orderId]) {
                         data[orderId] = {}
                     }
-                    data[orderId][etag]['downloaded'] = true
-                    this.storage.setData(data)
+                    console.log('====================================');
+                    console.log(name);
+                    console.log('====================================');
+                    if (data[orderId][etag]) {
+                       data[orderId][etag]['downloaded'] = true
+                       this.storage.setData(data)
+                    }
                     
                 }
             }
@@ -143,20 +153,27 @@ export default class OrderCard extends React.Component<PassedProps> {
 
   handleOpenDownloadDir() {
     let fileManger = FileManager.sharedInstance()
-    fileManger.openDownloadDir(this.order)
+    fileManger.openDownloadDir(this.order.orderId)
   }
 
   handleUploadDir() {
     let fileManger = FileManager.sharedInstance()
-    fileManger.openUploadDir(this.order)
+    fileManger.openUploadDir(this.order.orderId)
   }
 
   public render() {    
+    let date = new Date(Number(this.order.startTime) * 1000)
+    let year = date.getFullYear()
+    let month = date.getMonth() + 1
+    let day = date.getDate()
     return <div className="orderCard" style={{backgroundImage:'url('+ this.order.banner +')'}}>
         <div className="order-title">{this.order.title}</div>
-        <div className="order-id">{this.order.id}</div>
+        <div className="order-id">{this.order.orderId}</div>
         <div className="clear"></div>
-        <div className="order-subtitle">{this.order.subtitle}</div>
+        <div className="order-subtitle">{this.order.place}</div>
+        <div className="time">{year +'.' + month + '.' + day}</div>
+        <div className="clear"></div>
+        <img className="avatar" src={this.order.avatar} />
         <div className="operation">
           {this.order.orderStatus == OrderStatus.unStart? <button className="start-button" onClick={this.handleCreateDir.bind(this)}>开始修图</button>: null}
           {this.order.orderStatus == OrderStatus.started? <div>
