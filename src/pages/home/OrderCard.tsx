@@ -113,14 +113,12 @@ export default class OrderCard extends React.Component<PassedProps> {
     if (!this.userStore.isWatching) {
       this.userStore.isWatching = true
         let jonyFixDirPath = FileManager.sharedInstance().jonyFixDirPath
+
         watch(jonyFixDirPath, { recursive: true }, (event, name) => {
             if (event == 'update' && name.indexOf('.jpg') > -1) {
                 if (name.indexOf('上传目录') >= 0) {
 
                   var data = this.storage.getData()
-                  console.log('====================================');
-                  console.log(data);
-                  console.log('====================================');
 
                 }else {
 
@@ -133,9 +131,7 @@ export default class OrderCard extends React.Component<PassedProps> {
                     if (!data[orderId]) {
                         data[orderId] = {}
                     }
-                    console.log('====================================');
-                    console.log(name);
-                    console.log('====================================');
+
                     if (data[orderId][etag]) {
                        data[orderId][etag]['downloaded'] = true
                        this.storage.setData(data)

@@ -1,4 +1,6 @@
-
+import JLocalStorage from '../utils/JlocalStorage'
+import DownloadFileManager from '../utils/DownloadFileManager'
+import FileManager from '../utils/FileManager'
 export default class BaseNetwork {
 
   constructor() {
@@ -158,7 +160,25 @@ export default class BaseNetwork {
     if (data.code == this.methodMap.receivePhoto) {
 
         if (data.error_code == 0) {
-            
+
+            let storage = JLocalStorage.sharedInstance(window.localStorage.getItem('uid'))
+            var storageData = storage.getData()
+
+            data.data.map((imageObj, index) => {
+
+                let orderId = imageObj.orderId
+                if (!storageData[orderId]) {
+                    storageData[orderId] = {}
+                }
+                if (!storageData[orderId][imageObj.etag] || !storageData[orderId][imageObj.etag]['downloaded']) {
+                    storageData[orderId][imageObj.etag] = imageObj
+                    let manager = DownloadFileManager.sharedInstance()
+                    let fileManger = FileManager.sharedInstance()
+                    let savePath = fileManger.getTagDirPath(imageObj.orderId, imageObj.name) + '/' + imageObj.etag + '.jpg'
+                    manager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
+                }
+            })
+
         }
 
     }else {
