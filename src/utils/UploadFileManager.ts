@@ -51,12 +51,12 @@ export default class UploadFileManager {
 			"x:banner": '',
 			"x:etag": params.key,
 			"x:size": 1234,
-			"x:tagId": 0,
+			"x:tagId": params.tagId || 0,
 			"x:width": 1234,
 			"x:height": 1234,
-			"x:createDateTime": 1234,
-			"x:type": 1234,
-			"x:certType": 1234,
+			"x:createDateTime": (new Date()).getTime(),
+			"x:type": 1,
+			"x:certType": 1,
 			"x:source": 1
 		}
 		console.log(putExtra.params)

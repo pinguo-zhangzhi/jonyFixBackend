@@ -1,4 +1,5 @@
 
+import fs from 'fs'
 import * as ReactDOM from 'react-dom'
 import React from 'react'
 import { createStore, combineReducers } from 'redux'
@@ -8,7 +9,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import { createHistory } from 'history'
 import { observer, inject } from "mobx-react"
 import { observable, autorun, useStrict, action } from 'mobx'
-import { Layout, Menu, Breadcrumb, Icon } from 'antd'
+import { Layout, Menu, Breadcrumb, Icon, Modal } from 'antd'
 
 import BaseStore from '../../stores/BaseStore'
 import MenuStore from '../../stores/MenuStore'
@@ -106,6 +107,8 @@ export default class OrderCard extends React.Component<PassedProps> {
   }
 
   componentDidMount() {
+	var data = this.storage.getData()
+	console.log(data)
       // UploadFileManager.sharedInstance().uploadFile(this.userStore.uid, "201712061412569032", "/Users/macbook/Downloads/ac_bg.jpg")
   }
 
@@ -114,10 +117,49 @@ export default class OrderCard extends React.Component<PassedProps> {
       this.userStore.isWatching = true
         let jonyFixDirPath = FileManager.sharedInstance().jonyFixDirPath
         watch(jonyFixDirPath, { recursive: true }, (event, name) => {
-            if (event == 'update' && name.indexOf('.jpg')) {
-                if (name.indexOf('上传目录') >= 0) {
+			if (name.indexOf("DS_Store") > -1) {
+				return
+			}
+			
+			if (event == "update") {
 
-                }else {
+				if (name.indexOf('上传目录') >= 0) {
+
+					let picPathList = name.split("/")
+					let picName = picPathList[picPathList.length - 1]
+					let picEtag = picName.substr(0, picName.indexOf("."))
+					let picSuffix = picName.substr(picName.indexOf("."), picName.length - 1)
+					let picUploadDir = picPathList[picPathList.length - 2]
+					let picOrderId = picPathList[picPathList.length - 3]
+					let picInfo = this.storage.getData()[picOrderId][picEtag]
+					// let files = fs.readFileSync(jonyFixDirPath)
+					let path = FileManager.sharedInstance().getUploadDirPath(picOrderId)
+					console.log(path)
+					let files = fs.readdirSync(path);
+					files.forEach((val,index) => {
+						console.log(val, index)
+						// let fPath=join(path,val);
+						// let stats=fs.statSync(fPath);
+						// if(stats.isDirectory()) finder(fPath);
+						// if(stats.isFile()) result.push(fPath);
+					});
+					// console.log(picEtag, picPathList,picSuffix)
+					console.log(picInfo)
+					if (picSuffix.toLowerCase() != '.jpg' && picSuffix.toLowerCase() != '.jpeg') {
+						Modal.error({
+							title: '上传目录的图片格式只能是jpg/jpeg',
+							content: picName + '格式不正确',
+						});
+						return
+					}
+					UploadFileManager.sharedInstance().uploadFile({
+						uid: this.userStore.uid,
+						orderId: picOrderId,
+						filePath: name,
+						tagId: picInfo.tagID
+					})
+
+                } else {
 
                     let etag = path.basename(name)
                     etag = etag.split('.')[0]
