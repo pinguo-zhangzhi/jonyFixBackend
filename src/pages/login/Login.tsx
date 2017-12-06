@@ -65,6 +65,12 @@ export default class Login extends BaseView {
         })
     }
 
+    private verifyCodeTimer
+
+    componentWillUnmount() {
+        clearInterval(this.verifyCodeTimer)
+    }
+
     handleLogin() {
         if (!(this.phoneNumber && /^1[3|4|5|7|8][0-9]{9}$/.test(this.phoneNumber + ''))) {
             Modal.error({
@@ -93,6 +99,7 @@ export default class Login extends BaseView {
             if (res.error_code == 0) {
                 this.store.userInfo = res.data.info
                 this.store.uuid = res.data.uuid
+                this.store.uid = res.data.info.uid
                 this.store.isLogin = true
                 hashHistory.push('home')
             } else if (res.error_code == -10005) {
@@ -121,9 +128,9 @@ export default class Login extends BaseView {
             this.setState({
                 verifyText: verifyText
             })
-            let verifyCodeTimer = setInterval(() => {
+            this.verifyCodeTimer = setInterval(() => {
                 if (verifyText == 0) {
-                    clearInterval(verifyCodeTimer)
+                    clearInterval(this.verifyCodeTimer)
                     this.setState({
                         verifyLoading: false,
                         verifyText: "获取验证码"

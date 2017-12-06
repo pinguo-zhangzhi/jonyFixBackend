@@ -53,7 +53,7 @@ export default class UploadFileManager {
 		//config.useCdnDomain = true;
 		// 扩展参数
 		putExtra.params = {
-			"x:uid": 1234,
+			"x:uid": 'uid',
 			"x:orderId": 1234,
 			"x:banner": 1234,
 			"x:eTag": 1234,
