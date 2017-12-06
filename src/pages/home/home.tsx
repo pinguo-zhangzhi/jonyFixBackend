@@ -50,8 +50,6 @@ export default class Home extends BaseView {
     this.baseStore = props.baseStore
     this.userStore = props.userStore
     this.fetchOrderList()
-    // let uid = window.localStorage.getItem('uid')
-    // this.storage = JLocalStorage.sharedInstance(uid)
   }
 
   storage: JLocalStorage
@@ -73,13 +71,13 @@ export default class Home extends BaseView {
               orderList: res.data.list
             })
 
-            // for (let i = 0; i < res.data.list.length; i++) {
-            //   const orderItem = res.data.list[i];
-            //   if (orderItem.orderStatus == OrderStatus.started) {
-            //     let fileManager = FileManager.sharedInstance()
-            //     fileManager.createOrderDir(orderItem)
-            //   }
-            // }
+            for (let i = 0; i < res.data.list.length; i++) {
+              const orderItem = res.data.list[i];
+              if (orderItem.orderStatus == OrderStatus.started) {
+                let fileManager = FileManager.sharedInstance()
+                fileManager.createOrderDir(orderItem)
+              }
+            }
             
             // this.watchDir()
 
@@ -124,7 +122,6 @@ export default class Home extends BaseView {
   public render() {
     return <Layout className="main-container">
       <Header className="header">
-        <div className="logo" />
         <Menu
           theme="dark"
           mode="horizontal"
@@ -133,7 +130,8 @@ export default class Home extends BaseView {
           style={{ lineHeight: '64px' }}
           onClick = {this.logoutClick.bind(this)}
         >
-            <Menu.Item key="11" ><Icon type="file-text" />退出</Menu.Item>
+            <Menu.Item key="22" className="fix-avatar" style={{float: 'left'}} ></Menu.Item>
+            <Menu.Item key="11" className="logout" style={{float: 'right'}} >退出</Menu.Item>
         </Menu>
       </Header>
       <div className="orderlist-container">

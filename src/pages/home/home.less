@@ -4,6 +4,11 @@
   width: 100%;
 }
 
+.logout {
+    background: rgb(9, 177, 9);
+    font-size: 14px;
+}
+
 .orderlist-container {
    width: 100%;
    height: 100%;
@@ -22,9 +27,26 @@
   border-radius: 5px;
   overflow: hidden;
   position: relative;
+
+  .time {
+    float: left;
+    text-indent: 20px;
+    margin: 5px 0 0 0;
+  }
+
+  .avatar {
+    width:40px;
+    height:40px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 10px 0 0 20px;
+    float: left;
+  }
+
 }
 
 .order-title {
+  width: 50%;
   font-size: 18px;
   text-align: left;
   padding: 20px 0 0 20px;
@@ -38,6 +60,22 @@
   float:right;
 }
 
+.download-num {
+  position: absolute;
+  top: 50px;
+  right: 30px;
+  font-size: 18px;
+  color: #333;
+}
+
+.upload-num {
+  position: absolute;
+  top: 90px;
+  right: 30px;
+  font-size: 18px;
+  color: #333;
+}
+
 .order-subtitle {
   font-size: 14px;
   text-align: left;
@@ -46,20 +84,18 @@
 
 .operation {
   width: 100%;
-  height: 70px;
+  height: 55px;
   position: absolute;
   bottom: 0;
-  left: 0;
+  left: 20px;
   display: flex;
-  align-items: center;
-  justify-content: center;
 
   .start-button {
     width:100px;
     height:45px;
     border-radius: 3px;
-    background: green;
-    margin-right: 70px;
+    background: rgb(9, 177, 9);
+    margin-right: 10px;
     color: white;
     font-size: 14px;
   }
@@ -68,9 +104,20 @@
     width:100px;
     height:45px;
     border-radius: 3px;
-    background: blue;
+    background: rgb(196, 151, 6);
     color: white;
     font-size: 14px;
+    margin-right: 10px;
+  }
+
+  .ended-button {
+    width:100px;
+    height:45px;
+    border-radius: 3px;
+    background: rgb(203, 195, 171);
+    color: white;
+    font-size: 14px;
+    margin-right: 10px;
   }
 
 }

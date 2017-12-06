@@ -28,6 +28,10 @@ export default class UserStore<BaseStore> {
     this.storage = JLocalStorage.sharedInstance(info.avatar)
   }
 
+  get userinfo() {
+    return this._userInfo
+  }
+
   get isLogin() {
     var localizeProperty: any = window.localStorage.getItem("isLogin")
     if (localizeProperty == null || localizeProperty == 'false') {

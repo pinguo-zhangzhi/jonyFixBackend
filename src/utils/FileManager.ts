@@ -46,18 +46,18 @@ export default class FileManager {
       }
   }
 
-  openDownloadDir(order) {
-      let orderDir = this.jonyFixDirPath + '/' + order.orderId
+  openDownloadDir(orderId) {
+      let orderDir = this.jonyFixDirPath + '/' + orderId
       shell.openItem(orderDir)
   }
 
-  openUploadDir(order) {
-      let uploadDir = this.jonyFixDirPath + '/' + order.orderId + '/上传目录'
+  openUploadDir(orderId) {
+      let uploadDir = this.jonyFixDirPath + '/' + orderId + '/上传目录'
       shell.openItem(uploadDir)
   }
 
-  getUploadDirPath(order) {
-      let uploadDir = this.jonyFixDirPath + '/' + order.orderId + '/上传目录'
+  getUploadDirPath(orderId) {
+      let uploadDir = this.jonyFixDirPath + '/' + orderId + '/上传目录'
       if (fs.existsSync(uploadDir)) {
           return uploadDir
       }else {
@@ -65,8 +65,8 @@ export default class FileManager {
       }
   }
 
-  getOrderDirPath(order) {
-      let orderDir = this.jonyFixDirPath + '/' + order.orderId
+  getOrderDirPath(orderId) {
+      let orderDir = this.jonyFixDirPath + '/' + orderId
       if (fs.existsSync(orderDir)) {
           return orderDir
       }else {
@@ -74,11 +74,11 @@ export default class FileManager {
       }
   }
 
-  getTagDirPath(order, tagName) {
+  getTagDirPath(orderId, tagName) {
     if (tagName == null) {
         tagName = "全部"
     }
-    let tagDir = this.jonyFixDirPath + '/' + order.orderId + '/' + tagName
+    let tagDir = this.jonyFixDirPath + '/' + orderId + '/' + tagName
     if (!fs.existsSync(tagDir)) {
         fs.mkdirSync(tagDir) 
     }
