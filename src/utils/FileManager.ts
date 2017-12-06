@@ -28,6 +28,7 @@ export default class FileManager {
 
   createOrderDir(order) {
       let orderDir = this.jonyFixDirPath + '/' + order.orderId
+      console.log(orderDir)
       if (!fs.existsSync(orderDir)) {
           fs.mkdirSync(orderDir) 
       }
@@ -73,5 +74,17 @@ export default class FileManager {
         return null
       }
   }
+
+  getTagDirPath(order, tagName) {
+    if (tagName == null) {
+        tagName = "全部"
+    }
+    let tagDir = this.jonyFixDirPath + '/' + order.orderId + '/' + tagName
+    if (!fs.existsSync(tagDir)) {
+        fs.mkdirSync(tagDir) 
+    }
+
+    return tagDir
+}
 
 }

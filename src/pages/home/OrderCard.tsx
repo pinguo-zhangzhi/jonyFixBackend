@@ -24,6 +24,7 @@ const { Header, Content, Sider } = Layout
 
 import watch from 'node-watch'
 import Network from '../../network/Network'
+import DownloadFileManager from '../../utils/DownloadFileManager'
 
 enum OrderStatus {
   unStart = 0,
@@ -42,15 +43,25 @@ export default class OrderCard extends React.Component<PassedProps> {
     super()
     this.order = props.order
     this.userStore = props.userStore
-    if (this.order.orderStatus == OrderStatus.started) {
-        this.watchUploadDir()
-    }
   }
 
   userStore: any
 
   @observable order: any
 
+  fetchOrderPhotoList() {
+    Network.sharedInstance().request('orderPhotoList', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
+      if (res.error_code == 0) {
+            res.data.map((imageObj, index) => {
+                let manager = DownloadFileManager.sharedInstance()
+                let fileManger = FileManager.sharedInstance()
+                let savePath = fileManger.getTagDirPath(this.order, imageObj.name) + '/' + imageObj.etag + '.jpg'
+                manager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
+            })
+      }
+    })
+  }
+  
   handleCreateDir() {
       // UploadFileManager.sharedInstance().uploadFile(this.order.orderId)
     let fileManger = FileManager.sharedInstance()
@@ -58,32 +69,31 @@ export default class OrderCard extends React.Component<PassedProps> {
 
     Network.sharedInstance().request('startFix', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
         if (res.error_code == 0) {
-            console.log('====================================');
-            console.log(res);
-            console.log('====================================');
             this.order.orderStatus = OrderStatus.started
             this.forceUpdate()
             this.watchUploadDir()
         }
     })
 
+    this.fetchOrderPhotoList()
+
   }
 
   componentDidMount() {
-      UploadFileManager.sharedInstance().uploadFile("201712061412569032", "/Users/macbook/Downloads/ac_bg.jpg")
+      // UploadFileManager.sharedInstance().uploadFile("201712061412569032", "/Users/macbook/Downloads/ac_bg.jpg")
   }
 
   watchUploadDir() {
-    // let fileManger = FileManager.sharedInstance()
-    // let uploadDirPath = fileManger.getUploadDirPath(this.order)
-    // let orderDirPath = fileManger.getOrderDirPath(this.order)
-    // watch(orderDirPath, { recursive: true }, function(event, name) {
-    //     console.log('%s changed.', name)
-    //     console.log('====================================');
-    //     console.log(event);
-    //     // console.log(name.lastIndexOf(".").toLowerCase())
-    //     console.log('====================================');
-    // })
+    let fileManger = FileManager.sharedInstance()
+    let uploadDirPath = fileManger.getUploadDirPath(this.order)
+    let orderDirPath = fileManger.getOrderDirPath(this.order)
+    watch(orderDirPath, { recursive: true }, function(event, name) {
+        console.log('%s changed.', name)
+        console.log('====================================');
+        console.log(event);
+        // console.log(name.lastIndexOf(".").toLowerCase())
+        console.log('====================================');
+    })
   }
 
   handleEndFix() {

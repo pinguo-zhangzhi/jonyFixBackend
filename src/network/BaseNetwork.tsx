@@ -10,7 +10,8 @@ export default class BaseNetwork {
     login: 10000,
     orderList: 10003,
     startFix: 10004,
-    getUploadAuth: 10007
+    getUploadAuth: 10007,
+    orderPhotoList: 10006
   }
 
   rand_str = 'ywnBQ1YvqS'
@@ -43,7 +44,7 @@ export default class BaseNetwork {
       this.so = new Socket({
           readable: true,
           writable: true,
-          allowHalfOpen: true
+          allowHalfOpen: false
       })
 
       this.so.on('data', (res) => {
@@ -80,9 +81,11 @@ export default class BaseNetwork {
           console.log('socket is close')
           if (confirm('网络连接已经断开，请重新连接')){
                 setTimeout(() => {
-                    this.so = null
-                    this.connect(this.url, this.port)
-                }, 1000)
+                    // this.so.destroy()
+                    // this.so = null
+                    // this.connect(this.url, this.port)
+                    window.location.reload()
+                }, 2000)
           }
       })
         
@@ -96,6 +99,14 @@ export default class BaseNetwork {
         //       }, 1000)
         // }
       })
+
+      this.so.setKeepAlive(true)
+
+    //   this.so.setTimeout(15000)
+    //   this.so.on('timeout', () => {
+    //     console.log('socket timeout')
+    //     this.so.end()
+    //   });
 
       this.so.connect(port, url, (err) => {
           this.isConnected = true

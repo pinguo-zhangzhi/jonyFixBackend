@@ -8,13 +8,7 @@ import { observer, Provider } from "mobx-react"
 
 export default class DownloadFileManager {
   constructor() {
-    autorun(() => {
-        if (this.currentCount < this.maxCount) {
-            let request = this.queue.pop()
-            request()
-            this.currentCount ++
-        } 
-    })
+    
   }
 
   private maxCount = 10
@@ -28,7 +22,7 @@ export default class DownloadFileManager {
   //         let request = this.queue.pop()
   //         request()
   //         this.currentCount ++
-  //     } 
+  //     }  
   // }
 
   private static sManager
@@ -42,18 +36,24 @@ export default class DownloadFileManager {
   }
 
   downloadFile(url, path) {
-    let imageRequest = () => {
-      request.head(url, (err, res, body) => {
-          if(err){
-              console.log(err);
-          }else {
-              this.currentCount --
-          }
-      })
-      request(url).pipe(fs.createWriteStream(path))
-    }
+    
+    if (this.currentCount < this.maxCount) {
+        request.head(url, (err, res, body) => {
+            if(err){
+                console.log(err);
+            }else {
+                this.currentCount -- 
+                let obj = this.queue.pop()
+                if (obj != null) {
+                    this.downloadFile(obj.url, obj.path)
+                }
+            }
+        })
+        request(url).pipe(fs.createWriteStream(path))
 
-    this.queue.push(imageRequest)
+    }else {
+        this.queue.push({url: url, path: path})
+    }
 
   }
 
