@@ -20,25 +20,77 @@ import { remote, shell } from 'electron'
 const { SubMenu } = Menu
 const { Header, Content, Sider } = Layout
 
+import watch from 'node-watch'
+import Network from '../../network/Network'
+
+enum OrderStatus {
+  unStart = 0,
+  started,
+  end
+}
 
 interface PassedProps extends React.Props<any> {
   order: any
 }
 
+@inject("userStore") @observer
 export default class OrderCard extends React.Component<PassedProps> {
 
   constructor(props) {
     super()
     this.order = props.order
+    this.userStore = props.userStore
+    if (this.order.orderStatus == OrderStatus.started) {
+        this.watchUploadDir()
+    }
   }
+
+  userStore: any
 
   @observable order: any
   
   handleCreateDir() {
+    
     let fileManger = FileManager.sharedInstance()
-    fileManger.createDir(this.order)
-    this.order.orderStatus = 1
-    this.forceUpdate()
+    fileManger.createOrderDir(this.order)
+
+    Network.sharedInstance().request('startFix', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
+        if (res.error_code == 0) {
+            console.log('====================================');
+            console.log(res);
+            console.log('====================================');
+            this.order.orderStatus = OrderStatus.started
+            this.forceUpdate()
+            this.watchUploadDir()
+        }
+    })
+
+  }
+
+  watchUploadDir() {
+    let fileManger = FileManager.sharedInstance()
+    let uploadDirPath = fileManger.getUploadDirPath(this.order)
+    let orderDirPath = fileManger.getOrderDirPath(this.order)
+    watch(orderDirPath, { recursive: true }, function(event, name) {
+        console.log('%s changed.', name)
+        console.log('====================================');
+        console.log(event);
+        console.log('====================================');
+    })
+  }
+
+  handleEndFix() {
+    
+  }
+
+  handleOpenDownloadDir() {
+    let fileManger = FileManager.sharedInstance()
+    fileManger.openDownloadDir(this.order)
+  }
+
+  handleUploadDir() {
+    let fileManger = FileManager.sharedInstance()
+    fileManger.openUploadDir(this.order)
   }
 
   public render() {    
@@ -48,8 +100,12 @@ export default class OrderCard extends React.Component<PassedProps> {
         <div className="clear"></div>
         <div className="order-subtitle">{this.order.subtitle}</div>
         <div className="operation">
-          {this.order.orderStatus == 0? <button className="start-button" onClick={this.handleCreateDir.bind(this)}>开始修图</button>: null}
-          {this.order.orderStatus == 1? <button className="end-button">结束修图</button>: null}
+          {this.order.orderStatus == OrderStatus.unStart? <button className="start-button" onClick={this.handleCreateDir.bind(this)}>开始修图</button>: null}
+          {this.order.orderStatus == OrderStatus.started? <div>
+              <button className="end-button" onClick={this.handleEndFix.bind(this)}>结束修图</button>
+              <button className="end-button" onClick={this.handleOpenDownloadDir.bind(this)}>打开下载目录</button>
+              <button className="end-button" onClick={this.handleUploadDir.bind(this)}>打开上传目录</button>
+          </div>: null}
         </div>       
     </div>
   }

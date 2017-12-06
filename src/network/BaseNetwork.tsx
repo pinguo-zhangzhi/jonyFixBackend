@@ -8,7 +8,8 @@ export default class BaseNetwork {
   methodMap = {
     verifyCode: 10002,
     login: 10000,
-    orderList: 10003
+    orderList: 10003,
+    startFix: 10004
   }
 
   rand_str = 'ywnBQ1YvqS'
