@@ -5,8 +5,8 @@ const net = require('net')
 let win
 
 function createWindow() {
-    // const menu = Menu.buildFromTemplate([])
-    // Menu.setApplicationMenu(menu)  
+    const menu = Menu.buildFromTemplate([])
+    Menu.setApplicationMenu(menu)
     win = new BrowserWindow({
         resizable: true,
         width: 800,
@@ -18,9 +18,9 @@ function createWindow() {
         }
     })
 
-    // win.loadURL(`file://${__dirname}/dist/index.html`);
-    win.loadURL('http://localhost:8080/')
-    win.webContents.openDevTools();
+    win.loadURL(`file://${__dirname}/dist/index.html`);
+    // win.loadURL('http://localhost:8080/')
+    // win.webContents.openDevTools();
     win.on('close', () => {
             win = null;
         })

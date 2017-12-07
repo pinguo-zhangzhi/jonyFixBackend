@@ -1,149 +1,171 @@
 body,
 html {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  display: flex;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: flex;
 }
+
 .main-container {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
 a {
-  text-decoration: none;
+    text-decoration: none;
 }
+
 img {
-  border: none;
-  padding: 0;
-  margin: 0;
+    border: none;
+    padding: 0;
+    margin: 0;
 }
+
 button {
-  border: none;
-  padding: 0;
-  margin: 0;
-  outline: none;
-  cursor: pointer;
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    cursor: pointer;
 }
+
 input {
-  border: none;
-  padding: 0;
-  margin: 0;
-  outline: none;
-  text-indent: 10px;
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    text-indent: 10px;
 }
+
 input::-webkit-input-placeholder {
-  color: #999999;
-  opacity: 1;
+    color: #999;
+    opacity: 1;
 }
+
 .clear {
-  clear: both;
+    clear: both;
 }
+
 .header {
-  width: 100%;
+    width: 100%;
 }
+
 .logout {
-  background: #09b109;
-  font-size: 14px;
+    background: #09b109;
+    font-size: 14px;
 }
+
 .orderlist-container {
-  width: 100%;
-  height: 100%;
-  background: white;
-  flex: 1;
-  text-align: center;
-  position: relative;
+    width: 100%;
+    height: 100%;
+    background: white;
+    flex: 1;
+    text-align: center;
+    position: relative;
 }
+
 .orderCard {
-  width: 30%;
-  height: 250px;
-  float: left;
-  margin: 20px 0 0 2.5%;
-  background: lightgray;
-  border-radius: 5px;
-  overflow: hidden;
-  position: relative;
+    width: 30%;
+    height: 250px;
+    float: left;
+    margin: 20px 0 0 2.5%;
+    background: lightgray;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
 }
+
 .orderCard .time {
-  float: left;
-  text-indent: 20px;
-  margin: 5px 0 0 0;
+    float: left;
+    text-indent: 20px;
+    margin: 5px 0 0;
 }
+
 .orderCard .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  overflow: hidden;
-  margin: 10px 0 0 20px;
-  float: left;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 10px 0 0 20px;
+    float: left;
 }
+
 .order-title {
-  width: 50%;
-  font-size: 18px;
-  text-align: left;
-  padding: 20px 0 0 20px;
-  float: left;
+    width: 50%;
+    font-size: 18px;
+    text-align: left;
+    padding: 20px 0 0 20px;
+    float: left;
 }
+
 .order-id {
-  font-size: 14px;
-  text-align: right;
-  padding: 20px 20px 0 0;
-  float: right;
+    font-size: 14px;
+    text-align: right;
+    padding: 20px 20px 0 0;
+    float: right;
 }
+
 .download-num {
-  position: absolute;
-  top: 50px;
-  right: 30px;
-  font-size: 18px;
-  color: #333;
+    position: absolute;
+    top: 50px;
+    right: 30px;
+    font-size: 18px;
+    color: #333;
 }
+
 .upload-num {
-  position: absolute;
-  top: 90px;
-  right: 30px;
-  font-size: 18px;
-  color: #333;
+    position: absolute;
+    top: 90px;
+    right: 30px;
+    font-size: 18px;
+    color: #333;
 }
+
 .order-subtitle {
-  font-size: 14px;
-  text-align: left;
-  padding: 10px 0 0 20px;
+    font-size: 14px;
+    text-align: left;
+    padding: 10px 0 0 20px;
 }
+
 .operation {
-  width: 100%;
-  height: 55px;
-  position: absolute;
-  bottom: 0;
-  left: 20px;
-  display: flex;
+    width: 100%;
+    height: 55px;
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    display: flex;
 }
+
 .operation .start-button {
-  width: 100px;
-  height: 45px;
-  border-radius: 3px;
-  background: #09b109;
-  margin-right: 10px;
-  color: white;
-  font-size: 14px;
+    width: 100px;
+    height: 45px;
+    border-radius: 3px;
+    background: #09b109;
+    margin-right: 10px;
+    color: white;
+    font-size: 14px;
 }
+
 .operation .end-button {
-  width: 100px;
-  height: 45px;
-  border-radius: 3px;
-  background: #c49706;
-  color: white;
-  font-size: 14px;
-  margin-right: 10px;
+    width: 100px;
+    height: 45px;
+    border-radius: 3px;
+    background: #c49706;
+    color: white;
+    font-size: 14px;
+    margin-right: 10px;
 }
+
 .operation .ended-button {
-  width: 100px;
-  height: 45px;
-  border-radius: 3px;
-  background: #cbc3ab;
-  color: white;
-  font-size: 14px;
-  margin-right: 10px;
+    width: 100px;
+    height: 45px;
+    border-radius: 3px;
+    background: #cbc3ab;
+    color: white;
+    font-size: 14px;
+    margin-right: 10px;
 }

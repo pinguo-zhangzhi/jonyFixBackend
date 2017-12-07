@@ -3,7 +3,7 @@ const loaders = require('./webpack/loaders');
 const plugins = require('./webpack/plugins');
 
 // FIXME: change next line if you don't want publish to gh-pages
-const publicPath = (process.env.NODE_ENV === 'production') ? './' : '/';
+const publicPath = (process.env.NODE_ENV === 'production') ? './' : './';
 module.exports = {
     entry: {
         app: ['./src/index.tsx'],
