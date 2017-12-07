@@ -7,7 +7,7 @@ import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
 import { createHistory } from 'history'
 import { observer, inject } from "mobx-react"
 import { observable, autorun, useStrict, action } from 'mobx'
-import { Layout, Menu, Breadcrumb, Icon, Spin } from 'antd'
+import { Layout, Menu, Breadcrumb, Icon, Spin, Modal } from 'antd'
 import { ADDRCONFIG } from 'dns'
 import watch from 'node-watch'
 
@@ -20,6 +20,8 @@ import BaseView from '../../components/BaseView'
 import FileManager from '../../utils/FileManager'
 import JLocalStorage from '../../utils/JlocalStorage'
 import path from 'path'
+
+import UploadFileManager from '../../utils/UploadFileManager'
 
 const { SubMenu } = Menu
 const { Header, Content, Sider } = Layout
