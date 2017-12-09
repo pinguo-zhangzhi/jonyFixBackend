@@ -38,10 +38,6 @@ export default class BaseNetwork {
 
   static COUNTBYTELENGTH: number = 4
 
-  url: '10.1.17.204'
-
-  port: 7373
-
   connect(url, port) {
     if (!this.so) {
       var Socket = window['MainSocket']

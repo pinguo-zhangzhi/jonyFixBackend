@@ -24,6 +24,7 @@
     "exclude": [
         "node_modules",
         "dist",
-        "public"
+        "public",
+        "佳尼跟拍-darwin-x64"
     ]
 }

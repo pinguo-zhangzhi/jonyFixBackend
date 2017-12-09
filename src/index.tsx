@@ -48,4 +48,4 @@ ReactDOM.render(component, document.getElementById('root'))
 import Network from './network/Network'
 
 let network = Network.sharedInstance()
-network.connect('10.1.17.204', 7373)
+network.connect('jony-fix-dev.camera360.com', 7373)
