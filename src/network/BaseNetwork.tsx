@@ -153,9 +153,8 @@ export default class BaseNetwork {
   }
 
   callbackWithData(data) {
-
+      console.log(data)
     if (data.code == this.methodMap.receivePhoto) {
-
         if (data.error_code == 0) {
 
             let storage = JLocalStorage.sharedInstance(window.localStorage.getItem('uid'))

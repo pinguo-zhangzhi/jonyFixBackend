@@ -6,7 +6,7 @@ html {
     display: flex;
 }
 
-.main-container {
+.mainContainer {
     flex: 1;
     width: 100%;
     height: 100%;
@@ -42,7 +42,7 @@ input {
 }
 
 input::-webkit-input-placeholder {
-    color: #999;
+    color: #aaa;
     opacity: 1;
 }
 
@@ -50,7 +50,30 @@ input::-webkit-input-placeholder {
     clear: both;
 }
 
-.login-container {
+.button {
+    position: relative;
+    cursor: pointer;
+}
+
+.btnMask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hoverStyle {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.clickStyle {
+    background: rgba(255, 255, 255, 0);
+}
+
+.loginContainer {
     width: 100%;
     height: 100%;
     display: flex;
@@ -58,72 +81,81 @@ input::-webkit-input-placeholder {
     align-items: center;
     background-image: url(../../assets/images/login_bg.jpg);
     background-size: cover;
+    background-position: center;
 }
 
-.login-container .login-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 500px;
-    height: 500px;
-    margin-top: -250px;
-    margin-left: -250px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 5px;
-}
-
-.login-container .login-content .logo {
+.loginContainer .loginContent .logo {
     display: block;
-    width: 80px;
-    height: 80px;
-    margin: 15% auto;
-    background-image: url(../../assets/images/logo.png);
-    background-size: cover;
+    width: 200px;
+    height: 60px;
+    margin: auto;
+    margin-bottom: 43px;
 }
 
-.login-container .login-content .input-wrapper {
+.loginContainer .loginContent .row {
     display: flex;
     flex-direction: row;
-    margin-top: 30px;
-    padding: 0 20%;
     justify-content: center;
     align-items: center;
-}
-
-.login-container .login-content .input-wrapper .user-input,
-.login-container .login-content .input-wrapper .verifycode-input {
-    width: 100%;
-    height: 45px;
-    font-size: 16px;
-    color: #333;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.8);
-}
-
-.login-container .login-content .input-wrapper .verify-button {
-    width: 160px;
-    height: 45px;
-    border-radius: 3px;
-    margin-left: 30px;
-    color: #40a9ff;
-    font-size: 14px;
-    border-color: #40a9ff;
-    background: rgba(0, 0, 0, 0);
-}
-
-.login-container .login-content .input-wrapper .submit-area {
-    display: flex;
-    justify-content: center;
     margin: auto;
-    width: 100%;
+    margin-top: 12px;
+    width: 296px;
+    height: 40px;
 }
 
-.login-container .login-content .input-wrapper .submit-area .login-button {
-    height: 50px;
-    background: #40a9ff;
-    font-size: 16px;
-    color: white;
-    border-radius: 3px;
-    flex: 7;
-    border: 0;
+.loginContainer .loginContent .row .inputRow {
+    height: 40px;
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    background: #eee;
+}
+
+.loginContainer .loginContent .row .inputRow .inputIconWrapper {
+    width: 40px;
+    height: 40px;
+    padding: 12px 10px;
+}
+
+.loginContainer .loginContent .row .inputRow .inputIcon {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+.loginContainer .loginContent .row .inputRow .userInput,
+.loginContainer .loginContent .row .inputRow .verifycodeInput {
+    width: 100%;
+    height: 22px;
+    font-size: 15px;
+    border-left: 1px solid #ccc;
+    color: #666;
+    background: #eee;
+}
+
+.loginContainer .loginContent .verifyBtn {
+    width: 120px;
+    height: 40px;
+    margin-left: 10px;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 40px;
+    color: #333;
+    font-size: 15px;
+    background: #ffe100;
+}
+
+.loginContainer .loginContent .loginBtn {
+    margin-top: 20px;
+    width: 296px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    color: #333;
+    font-size: 15px;
+    border-radius: 5px;
+    background: #ffe100;
 }

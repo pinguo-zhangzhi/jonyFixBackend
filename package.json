@@ -19,8 +19,8 @@
     },
     "scripts": {
         "e-start": "electron .",
-        "electron-build-dmg": "electron-packager . 佳尼跟拍 --overwrite --platform=darwin --arch=x64 --ignore=\"(dist|src|docs|.gitignore|LICENSE|README.md|webpack.config.js|node_modules)\" --version 0.1.1 --icon=src/assets/images/icon.icns",
-        "electron-build-all": "electron-packager . 佳尼跟拍 --overwrite --all--ignore=\"(dist|src|docs|.gitignore|LICENSE|README.md|webpack.config.js|node_modules)\" --version 0.1.1",
+        "e-build-dmg": "electron-packager . 佳尼跟拍 --out out --overwrite --platform=darwin --arch=x64 --ignore=\"(docs|.gitignore|app.json|circle.yml|Dockerfile|jsconfig.json|postcss.config.js|Procfile|scripts|test|tsconfig.json|webpack|LICENSE|README.md|webpack.config.js|node_modules)\" --version 0.1.1 --icon=src/assets/images/icon.icns",
+        "e-build-all": "electron-packager . 佳尼跟拍 --out out --overwrite --all --ignore=\"(docs|.gitignore|app.json|circle.yml|Dockerfile|jsconfig.json|postcss.config.js|Procfile|scripts|test|tsconfig.json|webpack|LICENSE|README.md|webpack.config.js|node_modules)\" --version 0.1.1",
         "build": "cross-env NODE_ENV=development webpack --progress",
         "release": "rimraf dist && cross-env NODE_ENV=production webpack --progress && npm run deploy",
         "clean": "rimraf dist/",

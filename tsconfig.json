@@ -25,6 +25,6 @@
         "node_modules",
         "dist",
         "public",
-        "佳尼跟拍-darwin-x64"
+        "out"
     ]
 }

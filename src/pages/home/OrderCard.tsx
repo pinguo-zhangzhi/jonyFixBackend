@@ -2,41 +2,38 @@
 import fs from 'fs'
 import * as ReactDOM from 'react-dom'
 import React from 'react'
-import { createStore, combineReducers } from 'redux'
-import { Provider } from 'react-redux'
-import { Router, Route, hashHistory, browserHistory } from 'react-router'
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
-import { createHistory } from 'history'
 import { observer, inject } from "mobx-react"
 import { observable, autorun, useStrict, action } from 'mobx'
-import { Layout, Menu, Breadcrumb, Icon, Modal } from 'antd'
+import { remote, shell } from 'electron'
+import watch from 'node-watch'
+import path from 'path'
 
 import BaseStore from '../../stores/BaseStore'
 import MenuStore from '../../stores/MenuStore'
 import UserStore from '../../stores/UserStore'
-import FileManager from '../../utils/FileManager'
-
-import UploadFileManager from '../../utils/UploadFileManager'
-
-import { remote, shell } from 'electron'
-
-const { SubMenu } = Menu
-const { Header, Content, Sider } = Layout
-
-import watch from 'node-watch'
-import Network from '../../network/Network'
-import DownloadFileManager from '../../utils/DownloadFileManager'
-import path from 'path'
+import Button from '../../components/Button'
+import TextTip from '../../components/TextTip'
 import JLocalStorage from '../../utils/JlocalStorage'
+import FileManager from '../../utils/FileManager'
+import DownloadFileManager from '../../utils/DownloadFileManager'
+import UploadFileManager from '../../utils/UploadFileManager'
+import ErrorHandler from '../../utils/ErrorHandler'
+
+const fileManager = FileManager.sharedInstance()
+const downloadFileManager = DownloadFileManager.sharedInstance()
+const uploadFileManager = UploadFileManager.sharedInstance()
+const errorHandler = ErrorHandler.sharedInstance()
+
+useStrict(false)
 
 enum OrderStatus {
-  unStart = 0,
-  started = 1,
-  end = 2
+	unStart = 0,
+	started = 1,
+	end = 2
 }
 
 interface PassedProps extends React.Props<any> {
-  order: any
+  	order: any
 }
 
 @inject("userStore") @observer
@@ -49,7 +46,6 @@ export default class OrderCard extends React.Component<PassedProps> {
 		let uid = window.localStorage.getItem('uid')
 		this.storage = JLocalStorage.sharedInstance(uid)
 		if (this.order.orderStatus == OrderStatus.started) {
-			let fileManager = FileManager.sharedInstance()
 			this.fetchOrderPhotoList()
 			this.watchDir()
 		}
@@ -69,22 +65,22 @@ export default class OrderCard extends React.Component<PassedProps> {
 	@observable order: any
 
 	fetchOrderPhotoList() {
-		Network.sharedInstance().request('orderPhotoList', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
-		if (res.error_code == 0) {
+		this.userStore.getOrderPhotoList({uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
+			if (res.error_code == 0) {
 				var data = this.storage.getData()
-				let orderId = this.order.orderId 
+				let orderId = this.order.orderId
 				if (!data[orderId]) {
 					data[orderId] = {}
 				}
-				
+				this.setState({
+					downloadTotal: Object.keys(res.data).length
+				})
 				this.setUploadTotal()
 				res.data.map((imageObj, index) => {
 					if (!data[orderId][imageObj.etag] || !data[orderId][imageObj.etag]['downloaded']) {
 						data[orderId][imageObj.etag] = imageObj
-						let manager = DownloadFileManager.sharedInstance()
-						let fileManger = FileManager.sharedInstance()
-						let savePath = fileManger.getTagDirPath(this.order.orderId, imageObj.name) + '/' + imageObj.etag + '.jpg'
-						manager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
+						let savePath = fileManager.getTagDirPath(this.order.orderId, imageObj.name) + '/' + imageObj.etag + '.jpg'
+						downloadFileManager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
 					}
 				})
 
@@ -94,11 +90,9 @@ export default class OrderCard extends React.Component<PassedProps> {
 	}
 	
 	handleCreateDir() {
-		// UploadFileManager.sharedInstance().uploadFile(this.order.orderId)
-		let fileManger = FileManager.sharedInstance()
-		fileManger.createOrderDir(this.order)
+		fileManager.createOrderDir(this.order)
 
-		Network.sharedInstance().request('startFix', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
+		this.userStore.startFix({uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
 			if (res.error_code == 0) {
 				this.order.orderStatus = OrderStatus.started
 				this.forceUpdate()
@@ -107,7 +101,6 @@ export default class OrderCard extends React.Component<PassedProps> {
 		})
 
 		this.fetchOrderPhotoList()
-
 	}
 	
 	private uploadFileCountTimer
@@ -125,24 +118,23 @@ export default class OrderCard extends React.Component<PassedProps> {
 		}
 		this.setState({
 			uploadNum: uploadedNum,
-			downloadNum: downloadedNum,
-			downloadTotal: Object.keys(orderPics).length
+			downloadNum: downloadedNum
 		})
   	}
 
 	setUploadTotal() {
-		let path = FileManager.sharedInstance().getUploadDirPath(this.order.orderId)
-		let files = fs.readdirSync(path)
-		let _jpgFileLength = 0
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i];
-			if (file.toLowerCase().indexOf('.jpg') > -1 || file.toLowerCase().indexOf('.jpeg') > -1) {
-				_jpgFileLength ++
-			}
-		}
 		clearTimeout(this.uploadFileCountTimer)
 		this.uploadFileCountTimer = setTimeout(() => {
 			clearTimeout(this.uploadFileCountTimer)
+			let path = fileManager.getUploadDirPath(this.order.orderId)
+			let files = fs.readdirSync(path)
+			let _jpgFileLength = 0
+			for (let i = 0; i < files.length; i++) {
+				const file = files[i];
+				if (file.toLowerCase().indexOf('.jpg') > -1 || file.toLowerCase().indexOf('.jpeg') > -1) {
+					_jpgFileLength ++
+				}
+			}
 			this.setState({
 				uploadTotal: _jpgFileLength
 			})
@@ -152,15 +144,18 @@ export default class OrderCard extends React.Component<PassedProps> {
 	watchDir() {
 		if (!this.userStore.isWatching) {
 		this.userStore.isWatching = true
-			let jonyFixDirPath = FileManager.sharedInstance().jonyFixDirPath
+			let jonyFixDirPath = fileManager.jonyFixDirPath
 			watch(jonyFixDirPath, { recursive: true }, (event, name) => {
+				// 排除mac上DS_Store文件
 				if (name.indexOf("DS_Store") > -1) {
 					return
 				}
-				
 				if (event == "update") {
-
 					if (name.indexOf('上传目录') >= 0) {
+						// 新建上传目录时会进入判断
+						if (name.indexOf('上传目录') == name.length - 4) {
+							return
+						}
 
 						let picPathList = name.split("/")
 						let picName = picPathList[picPathList.length - 1]
@@ -168,24 +163,19 @@ export default class OrderCard extends React.Component<PassedProps> {
 						let picSuffix = picName.substr(picName.indexOf("."), picName.length - 1)
 						let picUploadDir = picPathList[picPathList.length - 2]
 						let picOrderId = picPathList[picPathList.length - 3]
-						let picInfo = this.storage.getData()[picOrderId][picEtag]
+						// let picInfo = this.storage.getData()[picOrderId][picEtag]
 
 						this.setUploadTotal()
 
-						// console.log(picEtag, picPathList,picSuffix)
-						// console.log(picInfo)
 						if (picSuffix.toLowerCase() != '.jpg' && picSuffix.toLowerCase() != '.jpeg') {
-							Modal.error({
-								title: '上传目录的图片格式只能是jpg/jpeg',
-								content: picName + '格式不正确',
-							});
+							errorHandler.handleErrorCode(10, picName + '格式不正确')
 							return
 						}
-						UploadFileManager.sharedInstance().uploadFile({
+						uploadFileManager.uploadFile({
 							uid: this.userStore.uid,
 							orderId: picOrderId,
 							filePath: name,
-							tagId: picInfo.tagID
+							tagId: ''
 						}, () => {
 							this.setState({
 								uploadNum: this.state.uploadNum + 1
@@ -201,7 +191,7 @@ export default class OrderCard extends React.Component<PassedProps> {
 							}
 						})
 
-					} else {
+					} else if (name.indexOf('下载目录') >= 0) {
 
 						let etag = path.basename(name)
 						etag = etag.split('.')[0]
@@ -212,9 +202,6 @@ export default class OrderCard extends React.Component<PassedProps> {
 						if (!data[orderId]) {
 							data[orderId] = {}
 						}
-						// console.log('====================================');
-						// console.log(name);
-						// console.log('====================================');
 						if (data[orderId][etag]) {
 							data[orderId][etag]['downloaded'] = true
 							this.storage.setData(data)
@@ -229,7 +216,7 @@ export default class OrderCard extends React.Component<PassedProps> {
 	}
 
 	handleEndFix() {
-		Network.sharedInstance().request('endFix', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
+		this.userStore.endFix({uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
 			if (res.error_code == 0) {
 				this.order.orderStatus = OrderStatus.end
 				this.forceUpdate()
@@ -238,13 +225,11 @@ export default class OrderCard extends React.Component<PassedProps> {
 	}
 
 	handleOpenDownloadDir() {
-		let fileManger = FileManager.sharedInstance()
-		fileManger.openDownloadDir(this.order.orderId)
+		fileManager.openDownloadDir(this.order.orderId)
 	}
 
 	handleUploadDir() {
-		let fileManger = FileManager.sharedInstance()
-		fileManger.openUploadDir(this.order.orderId)
+		fileManager.openUploadDir(this.order.orderId)
 	}
 
 	public render() {    
@@ -252,25 +237,58 @@ export default class OrderCard extends React.Component<PassedProps> {
 		let year = date.getFullYear()
 		let month = date.getMonth() + 1
 		let day = date.getDate()
-		return <div className="orderCard" style={{backgroundImage:'url('+ this.order.banner +')'}}>
-			<div className="order-title">{this.order.title}</div>
-			<div className="order-id">{this.order.orderId}</div>
-			<div className="clear"></div>
-			{this.order.orderStatus == OrderStatus.end ? null : <div className="download-num">已下载：{this.state.downloadNum+'/'+this.state.downloadTotal}</div>}
-			{this.order.orderStatus == OrderStatus.end ? null : <div className="upload-num">已上传：{this.state.uploadNum+'/'+this.state.uploadTotal}</div>}
-			<div className="order-subtitle">{this.order.place}</div>
-			<div className="time">{year +'.' + month + '.' + day}</div>
-			<div className="clear"></div>
-			<img className="avatar" src={this.order.avatar} />
-			<div className="operation">
-				{this.order.orderStatus == OrderStatus.end? <button className="ended-button">已结束</button>: null}
-				{this.order.orderStatus == OrderStatus.unStart? <button className="start-button" onClick={this.handleCreateDir.bind(this)}>开始修图</button>: null}
-				{this.order.orderStatus == OrderStatus.started? <div>
-					<button className="end-button" onClick={this.handleEndFix.bind(this)}>结束修图</button>
-					<button className="end-button" onClick={this.handleOpenDownloadDir.bind(this)}>打开下载目录</button>
-					<button className="end-button" onClick={this.handleUploadDir.bind(this)}>打开上传目录</button>
-				</div>: null}
-			</div>       
+		let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours()
+		let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes()
+		return <div className="orderWrapper">
+			<img className="orderBanner" src={this.order.banner} alt=""
+				style={{
+					backgroundImage:'url('+ this.order.banner +')',
+					opacity: this.order.orderStatus == OrderStatus.end ? 0.5: 1
+				}}/>
+			<div className="orderInfo">
+				{this.order.title.length >= 13 ? 
+					<TextTip tip={this.order.title}>
+						<span className="orderTheme">{this.order.title}</span>
+					</TextTip> :
+					<span className="orderTheme">{this.order.title}</span>
+				}
+				<div className="orderRow">
+					<span className="orderLabel">时间 ： </span>
+					<span className="orderValue">{year +'.' + month + '.' + day + ' ' + hour + ':' + min}</span>
+				</div>
+				<div className="orderRow">
+					<span className="orderLabel">地点 ： </span>
+					{this.order.place.length >= 13 ? 
+						<TextTip className="orderValueWrapper" tip={this.order.place}>
+							<span className="orderValue">{this.order.place}</span>
+						</TextTip> :
+						<span className="orderValue">{this.order.place}</span>
+					}
+				</div>
+				<div className="orderRow">
+					<span className="orderLabel">订单 ： </span>
+					<span className="orderValue">{this.order.orderId}</span>
+				</div>
+				<div className="orderRow">
+					<span className="orderLabel"
+						style={{color: this.order.orderStatus == OrderStatus.end ? "#aaa": "#c5752d"}}>已下载 ： </span>
+					<span className="orderValue"
+						style={{color: this.order.orderStatus == OrderStatus.end ? "#aaa": "#c5752d"}}>{this.state.downloadNum+'/'+this.state.downloadTotal}</span>
+				</div>
+				<div className="orderRow">
+					<span className="orderLabel"
+						style={{color: this.order.orderStatus == OrderStatus.end ? "#aaa": "#c5752d"}}>已上传 ： </span>
+					<span className="orderValue"
+						style={{color: this.order.orderStatus == OrderStatus.end ? "#aaa": "#c5752d"}}>{this.state.uploadNum+'/'+this.state.uploadTotal}</span>
+				</div>
+			</div>
+			{this.order.orderStatus == OrderStatus.end? <Button disabled={true} className="actionBtn endedBtn">已结束</Button>: null}
+			{this.order.orderStatus == OrderStatus.unStart? <Button className="actionBtn startBtn" onClick={this.handleCreateDir.bind(this)}>开始修图</Button>: null}
+			{this.order.orderStatus == OrderStatus.started? <div className="actionBtnWrapper">
+			<Button className="actionBtn startedBtn" onClick={this.handleUploadDir.bind(this)}>上传目录</Button>
+			<Button className="actionBtn startedBtn" onClick={this.handleOpenDownloadDir.bind(this)}>下载目录</Button>
+				<Button className="actionBtn startedBtn endBtn" onClick={this.handleEndFix.bind(this)}>结束修图</Button>
+			</div>: null}
 		</div>
 	}
 }
