@@ -58,9 +58,10 @@ export default class Network extends BaseNetwork {
   }
 
   request(method, param, callback) {
-    console.log('fetching ' + method + '...')
+    // console.log('fetching ' + method + '...')
     var data = this.assembleData(method, param)
     var sendString = JSON.stringify(data)
+    // console.log('fetching data ',data, '...')
     var bodyBuffer = new Buffer(sendString)
     var headBuffer = new Buffer(4)
     headBuffer.writeUInt32BE(bodyBuffer.length + 4, 0)

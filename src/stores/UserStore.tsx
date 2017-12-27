@@ -11,78 +11,106 @@ import JLocalStorage from '../utils/JlocalStorage'
 
 export default class UserStore<BaseStore> {
 
-  rootStore: BaseStore
+    rootStore: BaseStore
 
-  @observable _userInfo: any 
+    @observable _userInfo: any 
 
-  @observable orderList = []
+    @observable orderList = []
 
-  constructor(f:BaseStore) {
-    this.rootStore = f
-  }
-
-  storage: any
-
-  set userInfo(info) {
-    this._userInfo = info
-    this.storage = JLocalStorage.sharedInstance(window.localStorage.getItem('uid'))
-  }
-
-  get userinfo() {
-    return this._userInfo
-  }
-
-  get isLogin() {
-    var localizeProperty: any = window.localStorage.getItem("isLogin")
-    if (localizeProperty == null || localizeProperty == 'false') {
-      localizeProperty = false
-    }else {
-      localizeProperty == true
-    }
-    return localizeProperty
-  }
-
-  set isLogin(login: boolean) {
-    var localizeProperty
-    if (login == true) {
-      localizeProperty = 'true'
-    }else {
-      localizeProperty = 'false'
+    constructor(f:BaseStore) {
+        this.rootStore = f
     }
 
-    window.localStorage.setItem("isLogin", localizeProperty) 
-  }
+    storage: any
 
-  isWatching: boolean = false
+    set userInfo(info) {
+        this._userInfo = info
+        this.storage = JLocalStorage.sharedInstance(window.localStorage.getItem('uid'))
+    }
 
-  get uuid() {
-    return window.localStorage.getItem("uuid")
-  }
-  
-  set uuid(uuid) {
-    window.localStorage.setItem("uuid", uuid) 
-  }
+    get userinfo() {
+        return this._userInfo
+    }
 
-  get uid() {
-    return window.localStorage.getItem("uid")
-  }
-  
-  set uid(uid) {
-    window.localStorage.setItem("uid", uid) 
-  }
+    get isLogin() {
+        var localizeProperty: any = window.localStorage.getItem("isLogin")
+        if (localizeProperty == null || localizeProperty == 'false') {
+        localizeProperty = false
+        }else {
+        localizeProperty == true
+        }
+        return localizeProperty
+    }
 
-  login(param, callback) {
-      network.request('login', param, callback)
-  }
+    set isLogin(login: boolean) {
+        var localizeProperty
+        if (login == true) {
+        localizeProperty = 'true'
+        }else {
+        localizeProperty = 'false'
+        }
 
-  /* 接口 */
-  getVerifyCode(param, callback) {
-    network.request('verifyCode', param, callback)
-  }
+        window.localStorage.setItem("isLogin", localizeProperty) 
+    }
 
-  getOrderList(param, callback) {
-    network.request('orderList', param, callback)
-  }
+    isWatching: boolean = false
+
+    get uuid() {
+        return window.localStorage.getItem("uuid")
+    }
+
+    set uuid(uuid) {
+        window.localStorage.setItem("uuid", uuid) 
+    }
+
+    get uid() {
+        return window.localStorage.getItem("uid")
+    }
+
+    set uid(uid) {
+        window.localStorage.setItem("uid", uid) 
+    }
+
+    get avatar() {
+        return window.localStorage.getItem("avatar")
+    }
+
+    set avatar(avatar) {
+        window.localStorage.setItem("avatar", avatar) 
+    }
+
+    get nickname() {
+        return window.localStorage.getItem("nickname")
+    }
+
+    set nickname(nickname) {
+        window.localStorage.setItem("nickname", nickname) 
+    }
+
+    login(param, callback) {
+        network.request('login', param, callback)
+    }
+
+    /* 接口 */
+    getVerifyCode(param, callback) {
+        network.request('verifyCode', param, callback)
+    }
+
+    getOrderList(param, callback) {
+        network.request('orderList', param, callback)
+    }
+
+    getOrderPhotoList(param, callback) {
+        network.request('orderPhotoList', param, callback)
+    }
+
+    startFix(param, callback) {
+        network.request('startFix', param, callback)
+    }
+
+    endFix(param, callback) {
+        network.request('endFix', param, callback)
+    }
 
 }
 

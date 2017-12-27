@@ -1,33 +1,24 @@
 
-import * as ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom'
 import React from 'react'
-import { createStore, combineReducers } from 'redux'
-import { Provider } from 'react-redux'
-import { Router, Route, hashHistory } from 'react-router'
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
-import { createHistory } from 'history'
+import { hashHistory } from 'react-router'
 import { observer, inject } from "mobx-react"
-import { observable, autorun, useStrict, action } from 'mobx'
-import { Spin, Modal, Button } from 'antd'
-import { ADDRCONFIG } from 'dns'
+import { useStrict, observable, action } from 'mobx'
 
 import BaseView from '../../components/BaseView'
-import ErrorHandler from '../../utils/ErrorHandler'
+import Button from '../../components/Button'
 import BaseStore from '../../stores/BaseStore'
 import MenuStore from '../../stores/MenuStore'
+import UserStore from '../../stores/UserStore'
 
-import { remote, shell, ipcRenderer } from 'electron'
 import fs from 'fs'
 import os from 'os'
 
-ipcRenderer.on('asynchronous-reply', (event, arg) => {
-    console.log(arg) // prints "pong"
-})
-
+import LoginType from '../../utils/LoginType'
 import Network from '../../network/Network'
-import UserStore from '../../stores/UserStore'
-let network = Network.sharedInstance()
-
+import ErrorHandler from '../../utils/ErrorHandler'
+const network = Network.sharedInstance()
+const errorHandler = ErrorHandler.sharedInstance()
 
 require('./Login.less')
 
@@ -41,18 +32,17 @@ export default class Login extends BaseView {
     phoneNumber: number
 
     verifyCode: number
+    
+    private verifyCodeTimer:any
+    @observable verifyLoading:boolean = false
+    @observable verifyText:string = "获取验证码"
+    @observable loginLoading:boolean = false
+    @observable loginText:string = "登录"
 
     constructor(props) {
         super()
         this.store = props.userStore
         this.store.uuid = ""
-    }
-    
-    state = {
-        verifyLoading: false,
-        verifyText: "获取验证码",
-        loginLoading: false,
-        loginText: "登录"
     }
     
     componentDidMount() {
@@ -65,92 +55,10 @@ export default class Login extends BaseView {
         })
     }
 
-    private verifyCodeTimer
-
     componentWillUnmount() {
         clearInterval(this.verifyCodeTimer)
     }
-
-    handleLogin() {
-        if (!(this.phoneNumber && /^1[3|4|5|7|8][0-9]{9}$/.test(this.phoneNumber + ''))) {
-            Modal.error({
-                title: '',
-                content: '请输入11位手机号码',
-            });
-            return
-        }
-        if (!this.verifyCode) {
-            Modal.error({
-                title: '',
-                content: '请输入验证码',
-            });
-            return
-        }
-        this.setState({
-            loginLoading: true,
-            loginText: "登录中..."
-        })
-        this.store.isLogin = true
-        this.store.login({mobile: this.phoneNumber, code: this.verifyCode}, (res) => {
-            this.setState({
-                loginLoading: false,
-                loginText: "登录"
-            })
-            if (res.error_code == 0) {
-                this.store.userInfo = res.data.info
-                this.store.uuid = res.data.uuid
-                this.store.uid = res.data.info.uid
-                this.store.isLogin = true
-                hashHistory.push('home')
-            } else if (res.error_code == -10005) {
-                Modal.error({
-                    title: '验证码错误',
-                    content: '请检查输入或重新获取',
-                });
-            }
-        })
-    }
-
-    handleVerifyCode() {
-        if (!(this.phoneNumber && /^1[3|4|5|7|8][0-9]{9}$/.test(this.phoneNumber + ''))) {
-            Modal.error({
-                title: '',
-                content: '请输入11位手机号码',
-            });
-            return
-        }
-        this.setState({
-            verifyLoading: true,
-            verifyText: "获取中..."
-        })
-        this.store.getVerifyCode({mobile: this.phoneNumber}, (res) => {
-            let verifyText = 60
-            this.setState({
-                verifyText: verifyText
-            })
-            this.verifyCodeTimer = setInterval(() => {
-                if (verifyText == 0) {
-                    clearInterval(this.verifyCodeTimer)
-                    this.setState({
-                        verifyLoading: false,
-                        verifyText: "获取验证码"
-                    })
-                    return
-                }
-                verifyText --
-                this.setState({
-                    verifyText: verifyText
-                })
-            }, 1000)
-            if (res.error_code != 0) {
-
-            }
-            console.log('====================================');
-            console.log(res);
-            console.log('====================================');
-        })
-    }
-
+    
     handleVerifyCodeChange(event) {
         this.verifyCode = event.target.value
     }
@@ -159,32 +67,94 @@ export default class Login extends BaseView {
         this.phoneNumber = event.target.value
     }
 
+    @action handleVerifyCode() {
+        if (!(this.phoneNumber && /^1[3|4|5|7|8][0-9]{9}$/.test(this.phoneNumber + ''))) {
+            errorHandler.handleErrorCode(1)
+            return
+        }
+        this.verifyLoading = true
+        this.verifyText = "获取中..."
+
+        this.store.getVerifyCode({mobile: this.phoneNumber}, action((res: LoginType) => {
+            if (res.error_code != 0) {
+                this.verifyLoading = false
+                this.verifyText = "获取验证码"
+                errorHandler.handleErrorCode(res.error_code)
+                return
+            }
+            this.verifyText = "60"
+            this.verifyCodeTimer = setInterval(action(() => {
+                if (Number(this.verifyText) == 1) {
+                    clearInterval(this.verifyCodeTimer)
+                        this.verifyLoading = false
+                        this.verifyText = "获取验证码"
+                    return
+                }
+                this.verifyText = Number(this.verifyText) - 1 + ''
+            }), 1000)
+        }))
+    }
+    
+    @action handleLogin() {
+        if (!(this.phoneNumber && /^1[3|4|5|7|8][0-9]{9}$/.test(this.phoneNumber + ''))) {
+            errorHandler.handleErrorCode(1)
+            return
+        }
+        if (!this.verifyCode) {
+            errorHandler.handleErrorCode(2)
+            return
+        }
+        this.loginLoading = true
+        this.loginText = "登录中..."
+        this.store.isLogin = true
+        this.store.login({mobile: this.phoneNumber, code: this.verifyCode}, action((res: LoginType) => {
+            this.loginLoading = false
+            this.loginText = "登录"
+
+            if (res.error_code == 0) {
+                this.store.userInfo = res.data.info
+                this.store.uuid = res.data.uuid
+                this.store.uid = res.data.info.uid
+                this.store.avatar = res.data.info.avatar
+                this.store.nickname = res.data.info.nickname
+                this.store.isLogin = true
+                hashHistory.push('home')
+            } else if (res.error_code) {
+                errorHandler.handleErrorCode(res.error_code)
+            }
+        }))
+    }
+
     public render() {    
-        return <div className="login-container">
-                <div className="login-content">
-                    <div className="logo"></div>
-                    <div className="input-wrapper">
-                        <input className="user-input" placeholder="请输入电话号码" type="tel" maxLength={11} onChange={this.handlePhoneChange.bind(this)} />
-                    </div>
-                    <div className="input-wrapper">
-                    <input className="verifycode-input" placeholder="请输入验证码" type="tel" maxLength={4} onChange={this.handleVerifyCodeChange.bind(this)} />
-                    <Button className="verify-button" loading={this.state.verifyLoading} onClick={this.handleVerifyCode.bind(this)}>
-                    {this.state.verifyText}
-                    </Button>
-                    </div>
-                    <div className="input-wrapper">
-                        <div className="submit-area">
-                            <Button className="login-button" type="primary"
-                                loading={this.state.loginLoading} onClick={this.handleLogin.bind(this)}>
-                                {this.state.loginText}
-                            </Button>
+        return <div className="loginContainer">
+                <div className="loginContent">
+                    <img className="logo" src="../src/assets/images/logo.png" alt=""/>
+                    <div className="row">
+                        <div className="inputRow">
+                            <div className="inputIconWrapper">
+                                <img className="inputIcon" src="../src/assets/images/user.png" alt=""/>
+                            </div>
+                            <input className="userInput" placeholder="请输入手机号" type="tel" maxLength={11}
+                            onChange={this.handlePhoneChange.bind(this)} />
                         </div>
-                    </div>          
+                    </div>
+                    <div className="row">
+                        <div className="inputRow">
+                            <div className="inputIconWrapper">
+                                <img className="inputIcon" src="../src/assets/images/password.png" alt=""/>
+                            </div>
+                            <input className="verifycodeInput" placeholder="请输入验证码" type="tel" maxLength={4}
+                                onChange={this.handleVerifyCodeChange.bind(this)} />
+                        </div>
+                        <Button className="verifyBtn" disabled={this.verifyText != "获取验证码"}
+                            onClick={this.handleVerifyCode.bind(this)}>
+                            {this.verifyText}
+                        </Button>
+                    </div>
+                    <Button className="loginBtn" disabled={this.loginText == "登录中..."} onClick={this.handleLogin.bind(this)}>
+                        {this.loginText}
+                    </Button>
                 </div>
-                {this.isLoading == true? <Spin size="large" /> : null}
-                {this.errorModal != null? this.errorModal: null}
             </div>
-        
     }
 }
-

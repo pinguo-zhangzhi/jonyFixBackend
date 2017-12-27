@@ -1,12 +1,8 @@
 
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { createStore, combineReducers } from 'redux'
 import { Router, Route, hashHistory } from 'react-router'
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
-import { createHistory } from 'history'
-import { observer, Provider } from "mobx-react"
-import { observable } from 'mobx'
+import { Provider } from "mobx-react"
 
 import { remote, shell } from 'electron'
 import fs from 'fs'
@@ -46,6 +42,7 @@ var component = <Provider userStore={baseStore.userStore} baseStore={baseStore} 
 ReactDOM.render(component, document.getElementById('root'))
 
 import Network from './network/Network'
+const network = Network.sharedInstance()
 
-let network = Network.sharedInstance()
+// network.connect('jony-fix-dev.camera360.com', 7373)
 network.connect('10.1.17.204', 7373)

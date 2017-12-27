@@ -1,6 +1,8 @@
 import JLocalStorage from '../utils/JlocalStorage'
 import DownloadFileManager from '../utils/DownloadFileManager'
 import FileManager from '../utils/FileManager'
+import fs from 'fs'
+import electron from 'electron'
 export default class BaseNetwork {
 
   constructor() {
@@ -38,10 +40,6 @@ export default class BaseNetwork {
 
   static COUNTBYTELENGTH: number = 4
 
-  url: '10.1.17.204'
-
-  port: 7373
-
   connect(url, port) {
     if (!this.so) {
       var Socket = window['MainSocket']
@@ -52,14 +50,14 @@ export default class BaseNetwork {
       })
 
       this.so.on('data', (res) => {
-
         var buffer = Buffer.from(res)
-
+        console.log(buffer.length)
         if (this.singleReqeustComplete) {
 
             this.singleResTotalLength = buffer.readUIntBE(0, BaseNetwork.COUNTBYTELENGTH)
             var dataBuffer = buffer.slice(BaseNetwork.COUNTBYTELENGTH, buffer.length)
             this.singleResString = dataBuffer.toString()
+            console.log(buffer.length, this.singleResTotalLength)
             //表示是一次完整的请求
             if (this.singleResTotalLength == buffer.length) {
                 let jsonData = JSON.parse(this.singleResString)
@@ -157,9 +155,8 @@ export default class BaseNetwork {
   }
 
   callbackWithData(data) {
-
+      console.log(data)
     if (data.code == this.methodMap.receivePhoto) {
-
         if (data.error_code == 0) {
 
             let storage = JLocalStorage.sharedInstance(window.localStorage.getItem('uid'))

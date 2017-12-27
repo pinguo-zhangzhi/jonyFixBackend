@@ -2,41 +2,41 @@
 import fs from 'fs'
 import * as ReactDOM from 'react-dom'
 import React from 'react'
-import { createStore, combineReducers } from 'redux'
-import { Provider } from 'react-redux'
-import { Router, Route, hashHistory, browserHistory } from 'react-router'
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
-import { createHistory } from 'history'
 import { observer, inject } from "mobx-react"
 import { observable, autorun, useStrict, action } from 'mobx'
-import { Layout, Menu, Breadcrumb, Icon, Modal } from 'antd'
+import { remote, shell } from 'electron'
+import watchs from 'watch'
+import path from 'path'
 
 import BaseStore from '../../stores/BaseStore'
 import MenuStore from '../../stores/MenuStore'
 import UserStore from '../../stores/UserStore'
-import FileManager from '../../utils/FileManager'
-
-import UploadFileManager from '../../utils/UploadFileManager'
-
-import { remote, shell } from 'electron'
-
-const { SubMenu } = Menu
-const { Header, Content, Sider } = Layout
-
-import watch from 'node-watch'
-import Network from '../../network/Network'
-import DownloadFileManager from '../../utils/DownloadFileManager'
-import path from 'path'
+import Button from '../../components/Button'
+import TextTip from '../../components/TextTip'
 import JLocalStorage from '../../utils/JlocalStorage'
+import FileManager from '../../utils/FileManager'
+import DownloadFileManager from '../../utils/DownloadFileManager'
+import UploadFileManager from '../../utils/UploadFileManager'
+import ErrorHandler from '../../utils/ErrorHandler'
+import Events from '../../utils/Events'
+import { start } from 'repl';
+
+const fileManager = FileManager.sharedInstance()
+const downloadFileManager = DownloadFileManager.sharedInstance()
+const uploadFileManager = UploadFileManager.sharedInstance()
+const errorHandler = ErrorHandler.sharedInstance()
+const events = Events.sharedInstance()
+
+useStrict(false)
 
 enum OrderStatus {
-  unStart = 0,
-  started = 1,
-  end = 2
+	unStart = 0,
+	started = 1,
+	end = 2
 }
 
 interface PassedProps extends React.Props<any> {
-  order: any
+  	order: any
 }
 
 @inject("userStore") @observer
@@ -49,7 +49,6 @@ export default class OrderCard extends React.Component<PassedProps> {
 		let uid = window.localStorage.getItem('uid')
 		this.storage = JLocalStorage.sharedInstance(uid)
 		if (this.order.orderStatus == OrderStatus.started) {
-			let fileManager = FileManager.sharedInstance()
 			this.fetchOrderPhotoList()
 			this.watchDir()
 		}
@@ -69,36 +68,36 @@ export default class OrderCard extends React.Component<PassedProps> {
 	@observable order: any
 
 	fetchOrderPhotoList() {
-		Network.sharedInstance().request('orderPhotoList', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
-		if (res.error_code == 0) {
+		console.log("fetchOrderPhotoList--------" + this.order.orderId)
+		this.userStore.getOrderPhotoList({uuid: this.userStore.uuid, orderId: this.order.orderId, isBlock: 1}, (res) => {
+			console.log(res)
+			if (res.error_code == 0) {
 				var data = this.storage.getData()
-				let orderId = this.order.orderId 
+				let orderId = this.order.orderId
 				if (!data[orderId]) {
 					data[orderId] = {}
 				}
-				
-				this.setUploadTotal()
-				res.data.map((imageObj, index) => {
+				for (let index = 0; index < res.data.length; index++) {
+					let imageObj = res.data[index];
+					if (data[orderId][imageObj.etag] && !data[orderId][imageObj.etag]['download']) {
+						data[orderId][imageObj.etag]['download'] = true
+					}
 					if (!data[orderId][imageObj.etag] || !data[orderId][imageObj.etag]['downloaded']) {
 						data[orderId][imageObj.etag] = imageObj
-						let manager = DownloadFileManager.sharedInstance()
-						let fileManger = FileManager.sharedInstance()
-						let savePath = fileManger.getTagDirPath(this.order.orderId, imageObj.name) + '/' + imageObj.etag + '.jpg'
-						manager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
+						let savePath = fileManager.getTagDirPath(this.order.orderId, imageObj) + '/' + imageObj.etag + '.jpg'
+						downloadFileManager.downloadFile('https://c360-o2o.c360dn.com/' + imageObj.etag, savePath)
 					}
-				})
+				}
 
 				this.storage.setData(data)
 			}
 		})
 	}
-	
-	handleCreateDir() {
-		// UploadFileManager.sharedInstance().uploadFile(this.order.orderId)
-		let fileManger = FileManager.sharedInstance()
-		fileManger.createOrderDir(this.order)
 
-		Network.sharedInstance().request('startFix', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
+	handleCreateDir() {
+		fileManager.createOrderDir(this.order)
+
+		this.userStore.startFix({uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
 			if (res.error_code == 0) {
 				this.order.orderStatus = OrderStatus.started
 				this.forceUpdate()
@@ -107,170 +106,270 @@ export default class OrderCard extends React.Component<PassedProps> {
 		})
 
 		this.fetchOrderPhotoList()
-
 	}
-	
+
 	private uploadFileCountTimer
 
 	componentDidMount() {
-		let uploadedNum = 0, downloadedNum = 0
+		let uploadNum = 0,
+			uploadedNum = 0,
+			downloadNum = 0,
+			downloadedNum = 0
 		let orderPics = this.storage.getData()[this.order.orderId]
+		// console.log(orderPics, (new Date()).getTime())
+		// console.log(this.storage.getData())
 		for (let key in orderPics) {
+			if (orderPics[key].upload) {
+				uploadNum ++
+			}
 			if (orderPics[key].uploaded) {
 				uploadedNum ++
 			}
 			if (orderPics[key].downloaded) {
 				downloadedNum ++
 			}
-		}
-		this.setState({
-			uploadNum: uploadedNum,
-			downloadNum: downloadedNum,
-			downloadTotal: Object.keys(orderPics).length
-		})
-  	}
-
-	setUploadTotal() {
-		let path = FileManager.sharedInstance().getUploadDirPath(this.order.orderId)
-		let files = fs.readdirSync(path)
-		let _jpgFileLength = 0
-		for (let i = 0; i < files.length; i++) {
-			const file = files[i];
-			if (file.toLowerCase().indexOf('.jpg') > -1 || file.toLowerCase().indexOf('.jpeg') > -1) {
-				_jpgFileLength ++
+			if (orderPics[key].download) {
+				downloadNum ++
 			}
 		}
+		this.setState({
+			uploadTotal: uploadNum,
+			uploadNum: uploadedNum,
+			downloadNum: downloadedNum,
+			downloadTotal: downloadNum
+		})
+		// this.setUploadTotal()
+	}
+	  
+	addFileUploadListener() {
+		events.on("watchDirUploaded" + this.order.orderId, () => {
+			this.setState({
+				uploadTotal: this.state.uploadTotal + 1
+			})
+		})
+		events.on("watchFileUploaded" + this.order.orderId, () => {
+			this.setState({
+				uploadNum: this.state.uploadNum + 1
+			})
+		})
+	}
+	  
+	addFileDownloadListener() {
+		events.on("watchFileDownload" + this.order.orderId, () => {
+			// this.setState({
+			// 	uploadNum: this.state.uploadNum + 1
+			// })
+		})
+		events.on("watchFileDownloaded" + this.order.orderId, () => {
+			// console.log("watchFileDownloaded" + this.order.orderId)
+			this.setState({
+				downloadNum: this.state.downloadNum + 1
+			})
+		})
+	}
+
+	removeFileListener() {
+		events.remove("watchDirUploaded" + this.order.orderId)
+		events.remove("watchFileUploaded" + this.order.orderId)
+		events.remove("watchFileDownload" + this.order.orderId)
+		events.remove("watchFileDownloaded" + this.order.orderId)
+	}
+
+	setUploadTotal() {
+		// console.log(this.order.orderId)
 		clearTimeout(this.uploadFileCountTimer)
 		this.uploadFileCountTimer = setTimeout(() => {
 			clearTimeout(this.uploadFileCountTimer)
-			this.setState({
-				uploadTotal: _jpgFileLength
-			})
-		}, 1000)
+			// let uploadNum = 0
+			// let orderPics = this.storage.getData()[this.order.orderId]
+			// // console.log(orderPics, (new Date()).getTime())
+			// // console.log(orderPics, this.order.orderId)
+			// for (let key in orderPics) {
+			// 	if (orderPics[key].upload) {
+			// 		uploadNum ++
+			// 	}
+			// }
+			// this.setState({
+			// 	uploadTotal: uploadNum
+			// })
+			// let path = fileManager.getUploadDirPath(this.order.orderId)
+			// // console.log(this.order.orderId)
+			// try {
+			// 	let files = fs.readdirSync(path)
+			// 	let _jpgFileLength = 0
+			// 	for (let i = 0; i < files.length; i++) {
+			// 		const file = files[i];
+			// 		if (file.toLowerCase().indexOf('.jpg') > -1 || file.toLowerCase().indexOf('.jpeg') > -1) {
+			// 			_jpgFileLength ++
+			// 		}
+			// 	}
+			// 	this.setState({
+			// 		uploadTotal: _jpgFileLength
+			// 	})
+			// } catch (error) {}
+		}, 500)
 	}
 
 	watchDir() {
+		this.addFileUploadListener()
+		this.addFileDownloadListener()
 		if (!this.userStore.isWatching) {
-		this.userStore.isWatching = true
-			let jonyFixDirPath = FileManager.sharedInstance().jonyFixDirPath
-			watch(jonyFixDirPath, { recursive: true }, (event, name) => {
-				if (name.indexOf("DS_Store") > -1) {
-					return
-				}
-				
-				if (event == "update") {
+			this.userStore.isWatching = true;
+			let jonyFixDirPath = fileManager.jonyFixDirPath
+			watchs.watchTree(jonyFixDirPath, (filename, curr, prev) => {
+				console.log(filename, curr, prev)
+				if (typeof filename == "object" && prev === null && curr === null) {
+					// Finished walking the tree
+				} else if (prev === null) {
+					// f is a new file
+					// 排除mac上DS_Store文件
+					if (filename.indexOf("DS_Store") > -1) {
+						return
+					}
+					console.log(filename)
+					// console.log(filename, curr, prev)
+					let picName = path.basename(filename)
+					let etag = picName.split('.')[0],
+						suffix = picName.split('.')[1]
+					let paths = filename.split('/')
+					let orderId = paths[paths.length - 4]
+					let tagId = paths[paths.length - 2].split('-')[1]
+					// console.log(etag, suffix, paths, orderId, tagId)
 
-					if (name.indexOf('上传目录') >= 0) {
+					let data = this.storage.getData()
+					if (!data[orderId]) {
+						data[orderId] = {}
+					}
 
-						let picPathList = name.split("/")
-						let picName = picPathList[picPathList.length - 1]
-						let picEtag = picName.substr(0, picName.indexOf("."))
-						let picSuffix = picName.substr(picName.indexOf("."), picName.length - 1)
-						let picUploadDir = picPathList[picPathList.length - 2]
-						let picOrderId = picPathList[picPathList.length - 3]
-						let picInfo = this.storage.getData()[picOrderId][picEtag]
+					// 新建上传目录时会进入判断
+					if (filename.indexOf('上传目录') >= 0 && filename.indexOf('上传目录') != paths[paths.length - 2]) {
 
-						this.setUploadTotal()
-
-						// console.log(picEtag, picPathList,picSuffix)
-						// console.log(picInfo)
-						if (picSuffix.toLowerCase() != '.jpg' && picSuffix.toLowerCase() != '.jpeg') {
-							Modal.error({
-								title: '上传目录的图片格式只能是jpg/jpeg',
-								content: picName + '格式不正确',
-							});
+						if (suffix.toLowerCase() != 'jpg' && suffix.toLowerCase() != 'jpeg') {
+							errorHandler.handleErrorCode(10, picName + '格式不正确')
 							return
 						}
-						UploadFileManager.sharedInstance().uploadFile({
-							uid: this.userStore.uid,
-							orderId: picOrderId,
-							filePath: name,
-							tagId: picInfo.tagID
-						}, () => {
-							this.setState({
-								uploadNum: this.state.uploadNum + 1
-							})
 
-							var data = this.storage.getData()
-							if (!data[picOrderId]) {
-								data[picOrderId] = {}
-							}
-							if (data[picOrderId][picEtag]) {
-								data[picOrderId][picEtag]['uploaded'] = true
+						if (data[orderId][etag] && !data[orderId][etag]['upload']) {
+							data[orderId][etag]['upload'] = true
+							this.storage.setData(data)
+							events.emit("watchDirUploaded" + orderId);
+						}
+
+						uploadFileManager.uploadFile({
+							uid: this.userStore.uid,
+							orderId: orderId,
+							filePath: filename,
+							tagId: tagId
+						}, (picInfo) => {
+							events.emit("watchFileUploaded" + orderId);
+
+							// fs.rename(filename,filename.replace(picName, picInfo.data.etag), function(err){
+							// 	if(err){
+							// 	 	throw err;
+							// 	}
+							// 	// console.log('done!');
+							// })
+
+							if (data[orderId][etag] && !data[orderId][etag]['uploaded']) {
+								data[orderId][etag]['uploaded'] = true
 								this.storage.setData(data)
 							}
 						})
 
-					} else {
-
-						let etag = path.basename(name)
-						etag = etag.split('.')[0]
-						let paths = name.split('/')
-						let orderId = paths[paths.length - 3]
-						let tagName = paths[paths.length - 2]
-						var data = this.storage.getData()
-						if (!data[orderId]) {
-							data[orderId] = {}
-						}
-						// console.log('====================================');
-						// console.log(name);
-						// console.log('====================================');
-						if (data[orderId][etag]) {
+					} else if (filename.indexOf('下载目录') >= 0 && filename.indexOf('下载目录') != paths[paths.length - 2]) {
+						// console.log(filename, '下载目录')
+						if (data[orderId][etag] && !data[orderId][etag]['downloaded']) {
 							data[orderId][etag]['downloaded'] = true
 							this.storage.setData(data)
-							this.setState({
-								downloadNum: this.state.downloadNum + 1
-							})
+							events.emit("watchFileDownloaded" + orderId);
 						}
 					}
+				} else if (curr.nlink === 0) {
+					// console.log(filename, curr, prev)
+					// f was removed
+				} else {
+					// console.log(filename, curr, prev)
+				  // f was changed
 				}
 			})
 		}
 	}
 
 	handleEndFix() {
-		Network.sharedInstance().request('endFix', {uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
+		this.userStore.endFix({uuid: this.userStore.uuid, orderId: this.order.orderId}, (res) => {
 			if (res.error_code == 0) {
 				this.order.orderStatus = OrderStatus.end
+				this.removeFileListener()
 				this.forceUpdate()
 			}
 		})
 	}
 
 	handleOpenDownloadDir() {
-		let fileManger = FileManager.sharedInstance()
-		fileManger.openDownloadDir(this.order.orderId)
+		fileManager.openDownloadDir(this.order.orderId)
 	}
 
 	handleUploadDir() {
-		let fileManger = FileManager.sharedInstance()
-		fileManger.openUploadDir(this.order.orderId)
+		fileManager.openUploadDir(this.order.orderId)
 	}
 
-	public render() {    
+	public render() {
 		let date = new Date(Number(this.order.startTime) * 1000)
 		let year = date.getFullYear()
 		let month = date.getMonth() + 1
 		let day = date.getDate()
-		return <div className="orderCard" style={{backgroundImage:'url('+ this.order.banner +')'}}>
-			<div className="order-title">{this.order.title}</div>
-			<div className="order-id">{this.order.orderId}</div>
-			<div className="clear"></div>
-			{this.order.orderStatus == OrderStatus.end ? null : <div className="download-num">已下载：{this.state.downloadNum+'/'+this.state.downloadTotal}</div>}
-			{this.order.orderStatus == OrderStatus.end ? null : <div className="upload-num">已上传：{this.state.uploadNum+'/'+this.state.uploadTotal}</div>}
-			<div className="order-subtitle">{this.order.place}</div>
-			<div className="time">{year +'.' + month + '.' + day}</div>
-			<div className="clear"></div>
-			<img className="avatar" src={this.order.avatar} />
-			<div className="operation">
-				{this.order.orderStatus == OrderStatus.end? <button className="ended-button">已结束</button>: null}
-				{this.order.orderStatus == OrderStatus.unStart? <button className="start-button" onClick={this.handleCreateDir.bind(this)}>开始修图</button>: null}
-				{this.order.orderStatus == OrderStatus.started? <div>
-					<button className="end-button" onClick={this.handleEndFix.bind(this)}>结束修图</button>
-					<button className="end-button" onClick={this.handleOpenDownloadDir.bind(this)}>打开下载目录</button>
-					<button className="end-button" onClick={this.handleUploadDir.bind(this)}>打开上传目录</button>
-				</div>: null}
-			</div>       
+		let hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours()
+		let min = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes()
+		return <div className="orderWrapper">
+			<img className="orderBanner" src={this.order.banner} alt=""
+				style={{
+					backgroundImage:'url('+ this.order.banner +')',
+					opacity: this.order.orderStatus == OrderStatus.end ? 0.5: 1
+				}}/>
+			<div className="orderInfo">
+				{this.order.title.length >= 13 ?
+					<TextTip tip={this.order.title}>
+						<span className="orderTheme">{this.order.title}</span>
+					</TextTip> :
+					<span className="orderTheme">{this.order.title}</span>
+				}
+				<div className="orderRow">
+					<span className="orderLabel">时间 ： </span>
+					<span className="orderValue">{year +'.' + month + '.' + day + ' ' + hour + ':' + min}</span>
+				</div>
+				<div className="orderRow">
+					<span className="orderLabel">地点 ： </span>
+					{this.order.place.length >= 13 ?
+						<TextTip className="orderValueWrapper" tip={this.order.place}>
+							<span className="orderValue">{this.order.place}</span>
+						</TextTip> :
+						<span className="orderValue">{this.order.place}</span>
+					}
+				</div>
+				<div className="orderRow">
+					<span className="orderLabel">订单 ： </span>
+					<span className="orderValue">{this.order.orderId}</span>
+				</div>
+				<div className="orderRow">
+					<span className="orderLabel"
+						style={{color: this.order.orderStatus == OrderStatus.end ? "#aaa": "#c5752d"}}>已下载 ： </span>
+					<span className="orderValue"
+						style={{color: this.order.orderStatus == OrderStatus.end ? "#aaa": "#c5752d"}}>{this.state.downloadNum+'/'+this.state.downloadTotal}</span>
+				</div>
+				<div className="orderRow">
+					<span className="orderLabel"
+						style={{color: this.order.orderStatus == OrderStatus.end ? "#aaa": "#c5752d"}}>已上传 ： </span>
+					<span className="orderValue"
+						style={{color: this.order.orderStatus == OrderStatus.end ? "#aaa": "#c5752d"}}>{this.state.uploadNum+'/'+this.state.uploadTotal}</span>
+				</div>
+			</div>
+			{this.order.orderStatus == OrderStatus.end? <Button disabled={true} className="actionBtn endedBtn">已结束</Button>: null}
+			{this.order.orderStatus == OrderStatus.unStart? <Button className="actionBtn startBtn" onClick={this.handleCreateDir.bind(this)}>开始修图</Button>: null}
+			{this.order.orderStatus == OrderStatus.started? <div className="actionBtnWrapper">
+				<Button className="actionBtn startedBtn" onClick={this.handleUploadDir.bind(this)}>上传目录</Button>
+				<Button className="actionBtn startedBtn" onClick={this.handleOpenDownloadDir.bind(this)}>下载目录</Button>
+				<Button className="actionBtn startedBtn endBtn" onClick={this.handleEndFix.bind(this)}>结束修图</Button>
+			</div>: null}
 		</div>
 	}
 }
