@@ -71,6 +71,22 @@ export default class UserStore<BaseStore> {
         window.localStorage.setItem("uid", uid) 
     }
 
+    get avatar() {
+        return window.localStorage.getItem("avatar")
+    }
+
+    set avatar(avatar) {
+        window.localStorage.setItem("avatar", avatar) 
+    }
+
+    get nickname() {
+        return window.localStorage.getItem("nickname")
+    }
+
+    set nickname(nickname) {
+        window.localStorage.setItem("nickname", nickname) 
+    }
+
     login(param, callback) {
         network.request('login', param, callback)
     }

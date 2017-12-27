@@ -4,6 +4,8 @@ export default interface LoginType {
     data: {
         info: {
             uid: string
+            avatar: string
+            nickname: string
         }
         uuid: string
     }

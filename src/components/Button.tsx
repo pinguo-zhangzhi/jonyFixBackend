@@ -58,15 +58,24 @@ export default class Button extends React.Component<ButtonProps, any> {
 		})
 	}
 
+	handleClick(e) {
+		if (this.props.disabled) {
+			return
+		}
+		this.props.onClick && this.props.onClick(e)
+	}
+
 	public render() {
 		return <div className={this.props.className + " button"}
 					onMouseOut={this.handleMouseOut.bind(this)}
 					onMouseOver={this.handleMouseOver.bind(this)}
 					onMouseUp={this.handleMouseUp.bind(this)}
 					onMouseDown={this.handleMouseDown.bind(this)}
-					onClick={this.props.onClick}
+					onClick={this.handleClick.bind(this)}
 					>
-				<div className={"btnMask" + (this.state.clickStyle ? " clickStyle" : "") + (this.state.hoverStyle ? " hoverStyle" : "")}></div>
+				<div className={"btnMask" + (this.state.clickStyle ? " clickStyle" : "") +
+					(this.state.hoverStyle ? " hoverStyle" : "")+
+					(this.props.disabled ? " hoverStyle" : "")}></div>
 				{this.props.children}
 			</div>
 	}

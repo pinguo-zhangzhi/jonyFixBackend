@@ -35,17 +35,31 @@ export default class FileManager {
         if (!fs.existsSync(orderDir + '/下载目录')) {
             fs.mkdirSync(orderDir + '/下载目录') 
         }
-        order.tagList.map((tag, index) => {
-            let dirName = tag.name
-            let dirPath = orderDir + '/下载目录/' + dirName
+        if (!fs.existsSync(orderDir + '/上传目录')) {
+            fs.mkdirSync(orderDir + '/上传目录') 
+        }
+
+        if (Object.keys(order.tagList).length == 0) {
+            let dirPath = orderDir + '/下载目录/全部-0'
             if (!fs.existsSync(dirPath)) {
                 fs.mkdirSync(dirPath) 
             }
-        })
-
-        let uploadDir = orderDir + '/上传目录'
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir) 
+            let uploadDir = orderDir + '/上传目录/全部-0'
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir) 
+            }
+        } else {
+            order.tagList.map((tag, index) => {
+                let dirName = tag.name + '-' + tag.id
+                let dirPath = orderDir + '/下载目录/' + dirName
+                if (!fs.existsSync(dirPath)) {
+                    fs.mkdirSync(dirPath) 
+                }
+                let uploadDir = orderDir + '/上传目录/' + dirName
+                if (!fs.existsSync(uploadDir)) {
+                    fs.mkdirSync(uploadDir) 
+                }
+            })
         }
     }
 
@@ -77,10 +91,8 @@ export default class FileManager {
         }
     }
 
-    getTagDirPath(orderId, tagName) {
-        if (tagName == null) {
-            tagName = "全部"
-        }
+    getTagDirPath(orderId, tagObj) {
+        let tagName = (tagObj.name || "全部") + '-' + tagObj.tagID
         let tagDir = this.jonyFixDirPath + '/' + orderId + '/下载目录/' + tagName
         if (!fs.existsSync(tagDir)) {
             fs.mkdirSync(tagDir) 
@@ -88,4 +100,7 @@ export default class FileManager {
 
         return tagDir
     }
+
+    filePathCtx = {}
+
 }

@@ -1,8 +1,16 @@
 const { app, BrowserWindow, ipcMain, Menu } = require('electron')
 const path = require('path')
 const net = require('net')
+const isDev = require('electron-is-dev');
 
 let win
+
+
+if (isDev) {
+    console.log('Running in development');
+} else {
+    console.log('Running in production');
+}
 
 function createWindow() {
     const menu = Menu.buildFromTemplate([])
@@ -18,8 +26,8 @@ function createWindow() {
         }
     })
 
-    win.loadURL(`file://${__dirname}/dist/index.html`);
-    // win.loadURL('http://localhost:8080/')
+    // win.loadURL(`file://${__dirname}/dist/index.html`);
+    win.loadURL('http://localhost:8080/')
     win.webContents.openDevTools();
     win.on('close', () => {
             win = null;

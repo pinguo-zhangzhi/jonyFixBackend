@@ -36,6 +36,8 @@ export default class Home extends BaseView {
 	userStore: UserStore<BaseStore>
 
 	@observable currentContent: any
+	@observable avatar: any
+	@observable nickname: any
 
 	state = {
 		orderList: []
@@ -46,6 +48,8 @@ export default class Home extends BaseView {
 		this.store = props.menuStore 
 		this.baseStore = props.baseStore
 		this.userStore = props.userStore
+		this.avatar = this.userStore.avatar || "../src/assets/images/avatar.png"
+		this.nickname = this.userStore.nickname
 		this.fetchOrderList()
 	}
 
@@ -53,9 +57,10 @@ export default class Home extends BaseView {
 
 	@action fetchOrderList() {
 		this.isLoading = true
-		this.userStore.getOrderList(null, (res) => {
+		this.userStore.getOrderList({isBlock: 1}, (res) => {
 			this.isLoading = false
 			if (res.error_code == 0) {
+				console.log(res)
 				this.userStore.orderList = res.data.list
 				this.setState({
 					orderList: res.data.list
@@ -83,10 +88,10 @@ export default class Home extends BaseView {
 		return <div className="container">
 			<div className="header">
 				<div className="headerContent">
-					<img className="logo" src="/src/assets/images/logo.png" alt=""/>
+					<img className="logo" src="../src/assets/images/logo.png" alt=""/>
 					<div className="userInfo">
-						<img className="userAvatar" src="/src/assets/images/avatar.png" alt=""/>
-						<div className="userName">韦半仙</div>
+						<img className="userAvatar" src={this.avatar} alt=""/>
+						<div className="userName">{this.nickname}</div>
 						<Button className="logout" onClick={this.logoutClick.bind(this)}>退出</Button>
 					</div>
 				</div>

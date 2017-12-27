@@ -115,6 +115,8 @@ export default class Login extends BaseView {
                 this.store.userInfo = res.data.info
                 this.store.uuid = res.data.uuid
                 this.store.uid = res.data.info.uid
+                this.store.avatar = res.data.info.avatar
+                this.store.nickname = res.data.info.nickname
                 this.store.isLogin = true
                 hashHistory.push('home')
             } else if (res.error_code) {
@@ -126,11 +128,11 @@ export default class Login extends BaseView {
     public render() {    
         return <div className="loginContainer">
                 <div className="loginContent">
-                    <img className="logo" src="/src/assets/images/logo.png" alt=""/>
+                    <img className="logo" src="../src/assets/images/logo.png" alt=""/>
                     <div className="row">
                         <div className="inputRow">
                             <div className="inputIconWrapper">
-                                <img className="inputIcon" src="/src/assets/images/user.png" alt=""/>
+                                <img className="inputIcon" src="../src/assets/images/user.png" alt=""/>
                             </div>
                             <input className="userInput" placeholder="请输入手机号" type="tel" maxLength={11}
                             onChange={this.handlePhoneChange.bind(this)} />
@@ -139,16 +141,17 @@ export default class Login extends BaseView {
                     <div className="row">
                         <div className="inputRow">
                             <div className="inputIconWrapper">
-                                <img className="inputIcon" src="/src/assets/images/password.png" alt=""/>
+                                <img className="inputIcon" src="../src/assets/images/password.png" alt=""/>
                             </div>
                             <input className="verifycodeInput" placeholder="请输入验证码" type="tel" maxLength={4}
                                 onChange={this.handleVerifyCodeChange.bind(this)} />
                         </div>
-                        <Button className="verifyBtn" onClick={this.handleVerifyCode.bind(this)}>
+                        <Button className="verifyBtn" disabled={this.verifyText != "获取验证码"}
+                            onClick={this.handleVerifyCode.bind(this)}>
                             {this.verifyText}
                         </Button>
                     </div>
-                    <Button className="loginBtn" onClick={this.handleLogin.bind(this)}>
+                    <Button className="loginBtn" disabled={this.loginText == "登录中..."} onClick={this.handleLogin.bind(this)}>
                         {this.loginText}
                     </Button>
                 </div>

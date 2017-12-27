@@ -8,7 +8,10 @@ export default class JLocalStorage {
     constructor(userId) {
         const userDataPath = (electron.app || electron.remote.app).getPath('userData')
         this.path = path.join(userDataPath, userId + '.json')
+        // console.log(this.path)
         this.data = parseDataFile(this.path)
+        // console.log(this.data)
+        // this.clear()
     }
 
     private static sJLocalStorage: JLocalStorage
@@ -30,6 +33,7 @@ export default class JLocalStorage {
 
     setData(data) {
         this.data = data
+        // console.log(this.data)
         fs.writeFileSync(this.path, JSON.stringify(this.data))
     }
 
