@@ -68,9 +68,7 @@ export default class OrderCard extends React.Component<PassedProps> {
 	@observable order: any
 
 	fetchOrderPhotoList() {
-		console.log("fetchOrderPhotoList--------" + this.order.orderId)
 		this.userStore.getOrderPhotoList({uuid: this.userStore.uuid, orderId: this.order.orderId, isBlock: 1}, (res) => {
-			console.log(res)
 			if (res.error_code == 0) {
 				var data = this.storage.getData()
 				let orderId = this.order.orderId
@@ -217,7 +215,6 @@ export default class OrderCard extends React.Component<PassedProps> {
 			this.userStore.isWatching = true;
 			let jonyFixDirPath = fileManager.jonyFixDirPath
 			watchs.watchTree(jonyFixDirPath, (filename, curr, prev) => {
-				console.log(filename, curr, prev)
 				if (typeof filename == "object" && prev === null && curr === null) {
 					// Finished walking the tree
 				} else if (prev === null) {

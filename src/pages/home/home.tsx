@@ -60,10 +60,9 @@ export default class Home extends BaseView {
 		this.userStore.getOrderList({isBlock: 1}, (res) => {
 			this.isLoading = false
 			if (res.error_code == 0) {
-				console.log(res)
-				this.userStore.orderList = res.data.list
+				this.userStore.orderList = this.userStore.orderList.concat(res.data.list)
 				this.setState({
-					orderList: res.data.list
+					orderList: this.userStore.orderList
 				})
 				
 				for (let i = 0; i < res.data.list.length; i++) {
