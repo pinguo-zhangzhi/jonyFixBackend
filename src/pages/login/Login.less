@@ -1,77 +1,93 @@
 
 @import url('../../common.less');
 
-.login-container {
-    width:100%;
-    height:100%;
+.loginContainer {
+    width: 100%;
+    height: 100%;
     display: flex;
-    justify-content:center;
+    justify-content: center;
     align-items: center;
     background-image: url(../../assets/images/login_bg.jpg);
     background-size: cover;
+    background-position: center;
 
-    .login-content {
-        position: absolute;
-        top:50%;
-        left:50%;
-        width:500px;
-        height:500px;
-        margin-top: -250px;
-        margin-left: -250px;
-        background: rgba(0, 0, 0, 0.6);
-        border-radius: 5px;
+    .loginContent {
+        // background: rgba(0, 0, 0, 0.6);
 
         .logo {
-            width:80px;
-            height:80px;
-            position: absolute;
-            left:50%;
-            margin-left: -40px;
-            top:40px;
-            background-image:url(../../assets/images/logo.png);
-            background-size: cover;
+            display: block;
+            // width: 300px;
+            width: 200px;
+            height: 60px;
+            margin: auto;
+            margin-bottom: 43px;
         }
 
-        .user-input, .verifycode-input {
-            width:90%;
-            height:45px;
-            margin-left: 5%;
-            font-size: @base-font-bigSize;
-            color: rgb(39, 39, 39);
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.8);
-        }
-
-        .user-input {
-            margin-top: 35%;
-        }
-
-        .verifycode-input {
-            margin-top: 30px;
-        }
-
-        .submit-area {
+        .row {
             display: flex;
+            flex-direction: row;
             justify-content: center;
-            margin: 30px 0 0 5%;
-            width: 90%;
-            .login-button {
-                height:60px;
-                background: rgb(102, 158, 38);
-                font-size: @base-font-bigSize;
-                color: @base-color-white;
-                border-radius: 3px;
-                flex:7;
+            align-items: center;
+            margin: auto;
+            margin-top: 12px;
+            width: 296px;
+            height: 40px;
+
+            .inputRow {
+                height: 40px;
+                flex: 2;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                border-radius: 5px;
+                background: #eee;
+
+                .inputIconWrapper {
+                    width: 40px;
+                    height: 40px;
+                    padding: 12px 10px;
+                }
+
+                .inputIcon {
+                    display: block;
+                    width: 16px;
+                    height: 16px;
+                }
+
+                .userInput, .verifycodeInput {
+                    width: 100%;
+                    height: 22px;
+                    font-size: 15px;
+                    border-left: 1px solid #ccc;
+                    color: #666;
+                    background: #eee;
+                }
             }
-            .verify-button {
-                width: 100px;
-                height: 60px;
-                background: rgb(41, 117, 189);
-                border-radius: 3px;
-                margin-left: 10px;
-                color: @base-color-white;
-                font-size: @base-font-size;
-            }
+        }
+
+        .verifyBtn {
+            width: 120px;
+            height: 40px;
+            margin-left: 10px;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 40px;
+            color: #333;
+            font-size: 15px;
+            background: #ffe100;
+        }
+
+        .loginBtn {
+            margin-top: 20px;
+            width: 296px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            color: #333;
+            font-size: 15px;
+            border-radius: 5px;
+            background: #ffe100;
         }
     }
 

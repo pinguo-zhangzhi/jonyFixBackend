@@ -1,0 +1,161 @@
+body,
+html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: flex;
+}
+
+.mainContainer {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+a {
+    text-decoration: none;
+}
+
+img {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+button {
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    cursor: pointer;
+}
+
+input {
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    text-indent: 10px;
+}
+
+input::-webkit-input-placeholder {
+    color: #aaa;
+    opacity: 1;
+}
+
+.clear {
+    clear: both;
+}
+
+.button {
+    position: relative;
+    cursor: pointer;
+}
+
+.btnMask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hoverStyle {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.clickStyle {
+    background: rgba(255, 255, 255, 0);
+}
+
+.loginContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url(../../assets/images/login_bg.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+.loginContainer .loginContent .logo {
+    display: block;
+    width: 200px;
+    height: 60px;
+    margin: auto;
+    margin-bottom: 43px;
+}
+
+.loginContainer .loginContent .row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    margin-top: 12px;
+    width: 296px;
+    height: 40px;
+}
+
+.loginContainer .loginContent .row .inputRow {
+    height: 40px;
+    flex: 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    background: #eee;
+}
+
+.loginContainer .loginContent .row .inputRow .inputIconWrapper {
+    width: 40px;
+    height: 40px;
+    padding: 12px 10px;
+}
+
+.loginContainer .loginContent .row .inputRow .inputIcon {
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+.loginContainer .loginContent .row .inputRow .userInput,
+.loginContainer .loginContent .row .inputRow .verifycodeInput {
+    width: 100%;
+    height: 22px;
+    font-size: 15px;
+    border-left: 1px solid #ccc;
+    color: #666;
+    background: #eee;
+}
+
+.loginContainer .loginContent .verifyBtn {
+    width: 120px;
+    height: 40px;
+    margin-left: 10px;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 40px;
+    color: #333;
+    font-size: 15px;
+    background: #ffe100;
+}
+
+.loginContainer .loginContent .loginBtn {
+    margin-top: 20px;
+    width: 296px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    color: #333;
+    font-size: 15px;
+    border-radius: 5px;
+    background: #ffe100;
+}

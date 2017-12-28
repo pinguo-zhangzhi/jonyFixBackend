@@ -1,112 +1,108 @@
-
 import * as ReactDOM from 'react-dom';
 import React from 'react'
-import { createStore, combineReducers } from 'redux'
-import { Provider } from 'react-redux'
-import { Router, Route, hashHistory, browserHistory } from 'react-router'
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
-import { createHistory } from 'history'
+import { hashHistory } from 'react-router'
 import { observer, inject } from "mobx-react"
 import { observable, autorun, useStrict, action } from 'mobx'
-import { Layout, Menu, Breadcrumb, Icon } from 'antd'
-import { ADDRCONFIG } from 'dns'
+import watch from 'node-watch'
+import path from 'path'
 
 import BaseStore from '../../stores/BaseStore'
 import MenuStore from '../../stores/MenuStore'
 import UserStore from '../../stores/UserStore'
+import OrderCard from './OrderCard'
+import ErrorHandler from '../../utils/ErrorHandler'
+import BaseView from '../../components/BaseView'
+import Button from '../../components/Button'
+import JLocalStorage from '../../utils/JlocalStorage'
+import FileManager from '../../utils/FileManager'
 
-import ViplistView from '../vipList/VipListView'
-import OrderManageView from '../orderManage/OrderManageView'
-import TemplateManageView from '../templateManage/TemplateManageView'
-import FilterManageView from '../filterManage/FilterManageView'
+const errorHandler = ErrorHandler.sharedInstance()
+const fileManager = FileManager.sharedInstance()
 
-const { SubMenu } = Menu
-const { Header, Content, Sider } = Layout
+useStrict(false)
 
-useStrict(true)
+enum OrderStatus {
+	unStart = 0,
+	started = 1,
+	end = 2
+}
 
+require('./home.less')
 @inject("menuStore", "baseStore", "userStore") @observer
-export default class Home extends React.Component {
+export default class Home extends BaseView {
 
-  store:MenuStore<BaseStore>
-  baseStore: BaseStore
-  userStore: UserStore<BaseStore>
+	store: MenuStore<BaseStore>
+	baseStore: BaseStore
+	userStore: UserStore<BaseStore>
 
-  @observable currentContent: any
+	@observable currentContent: any
+	@observable avatar: any
+	@observable nickname: any
 
-  constructor(props) {
-    super()
-    this.store = props.menuStore 
-    this.baseStore = props.baseStore
-    this.userStore = props.userStore
-    this.initContent()
-    this.startWebSocket()
-  }
+	state = {
+		orderList: []
+	}
 
-  initContent() {
-    this.currentContent = <ViplistView />
-  }
+	constructor(props) {
+		super()
+		this.store = props.menuStore 
+		this.baseStore = props.baseStore
+		this.userStore = props.userStore
+		this.avatar = this.userStore.avatar || "../src/assets/images/avatar.png"
+		this.nickname = this.userStore.nickname
+		this.fetchOrderList()
+	}
 
-  startWebSocket() {
+	storage: JLocalStorage
 
-  }
+	@action fetchOrderList() {
+		this.isLoading = true
+		this.userStore.getOrderList({isBlock: 1}, (res) => {
+			this.isLoading = false
+			if (res.error_code == 0) {
+				this.userStore.orderList = this.userStore.orderList.concat(res.data.list)
+				this.setState({
+					orderList: this.userStore.orderList
+				})
+				
+				for (let i = 0; i < res.data.list.length; i++) {
+					const orderItem = res.data.list[i];
+					if (orderItem.orderStatus == OrderStatus.started) {
+						fileManager.createOrderDir(orderItem)
+					}
+				}
+			} else {
+				errorHandler.handleErrorCode(res.error_code)
+			}
+		})
+	}
 
-  @action logoutClick = (e) => {
-    this.userStore.isLogin = false
-    browserHistory.replace('login')
-  }
+	@action logoutClick = (e) => {
+		this.userStore.isLogin = false
+		this.userStore.uuid = ""
+		hashHistory.replace('login')
+	}
 
-  @action handleClick = (e) => {
-    this.currentContent = e.item.props.content
-    this.store.switchToIndex(Number(e.key))
-  }
-
-  public render() {    
-
-    return <Layout>
-      <Header className="header">
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['1']}
-          defaultOpenKeys={['sub1']}
-          style={{ lineHeight: '64px' }}
-          onClick = {this.logoutClick.bind(this)}
-        >
-            <Menu.Item key="11" ><Icon type="file-text" />退出</Menu.Item>
-        </Menu>
-      </Header>
-      <Layout>
-        <Sider width={200} style={{ background: '#fff' }}>
-          <Menu
-            mode="inline"
-            onClick = {this.handleClick}
-            defaultSelectedKeys={['0']}
-            defaultOpenKeys={['sub1']}
-            style={{ height: '100%', borderRight: 0 }}
-          >
-              <SubMenu key="sub1" title={<span><Icon type="user" /><span>用户管理</span></span>}>
-                  <Menu.Item key="0" content={<ViplistView />} ><Icon type="file-text" />VIP白名单</Menu.Item>
-                  <Menu.Item key="1" content={<OrderManageView />}><Icon type="file-text" />支付白名单</Menu.Item>
-                  <Menu.Item key="2"><Icon type="file-text" />上传白名单</Menu.Item>
-              </SubMenu>
-              <Menu.Item key="3" content={<OrderManageView />} ><Icon type="solution" />订单管理</Menu.Item>
-              <Menu.Item key="4" content={<TemplateManageView />}><Icon type="picture" />模板管理</Menu.Item>
-              <Menu.Item key="5" content={<FilterManageView />}><Icon type="camera" />滤镜管理</Menu.Item>
-          </Menu>
-        </Sider>
-        <Layout style={{ padding: '0 24px 24px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }}>
-            <Breadcrumb.Item>Home</Breadcrumb.Item>
-            <Breadcrumb.Item>List</Breadcrumb.Item>
-            <Breadcrumb.Item>App</Breadcrumb.Item>
-          </Breadcrumb>
-          <Content style={{ background: '#fff', padding: 24, margin: 0, minHeight: 280 }}>
-            {this.currentContent}
-          </Content>
-        </Layout>
-      </Layout>
-    </Layout>
-  }
+	public render() {
+		return <div className="container">
+			<div className="header">
+				<div className="headerContent">
+					<img className="logo" src="../src/assets/images/logo.png" alt=""/>
+					<div className="userInfo">
+						<img className="userAvatar" src={this.avatar} alt=""/>
+						<div className="userName">{this.nickname}</div>
+						<Button className="logout" onClick={this.logoutClick.bind(this)}>退出</Button>
+					</div>
+				</div>
+				<div className="title">修图列表</div>
+			</div>
+			<div className="mainContainer">
+				<div className="orderContainer">
+					{ this.state.orderList.map((order, index) => {
+						return <OrderCard key={index} order={order} />
+					}) }
+				</div>
+			</div>
+		</div>
+	}
 }

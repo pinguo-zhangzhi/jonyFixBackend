@@ -5,7 +5,7 @@
     "javascript.validate.enable": false,
     "workbench.statusBar.visible": true,
     "files.autoSave": "onFocusChange",
-    "editor.tabSize": 2,
+    "editor.tabSize": 4,
     "editor.autoIndent": true,
     "typescript.check.tscVersion": false,
     "files.exclude": {

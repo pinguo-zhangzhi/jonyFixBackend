@@ -7,7 +7,6 @@ import UserStore from './UserStore'
 import { BaseAtom } from 'mobx/lib/core/atom'
 
 
-useStrict(true)
 
 export default class BaseStore {
 

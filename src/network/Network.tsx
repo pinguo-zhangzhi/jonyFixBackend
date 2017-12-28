@@ -47,13 +47,21 @@ export default class Network extends BaseNetwork {
       data: param || {}
     }
 
+    let uuid = window.localStorage.getItem('uuid') || ''
+
+    if (uuid.length > 0) {
+      data.data['uuid'] = uuid
+    }
+
     data["sign"] = this.signData(data)
     return data
   }
 
   request(method, param, callback) {
+    // console.log('fetching ' + method + '...')
     var data = this.assembleData(method, param)
     var sendString = JSON.stringify(data)
+    // console.log('fetching data ',data, '...')
     var bodyBuffer = new Buffer(sendString)
     var headBuffer = new Buffer(4)
     headBuffer.writeUInt32BE(bodyBuffer.length + 4, 0)
